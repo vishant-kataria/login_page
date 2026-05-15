@@ -1,13 +1,7 @@
 /* === CSS Reset === */
-*,
-*::before,
-*::after {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* === Base Styles === */
+/* === Base === */
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     min-height: 100vh;
@@ -19,149 +13,52 @@ body {
     padding: 2rem;
 }
 
-/* === Centered Container === */
-.container {
-    text-align: center;
-}
+.container { text-align: center; }
 
 /* === Buttons === */
-.btn-group {
-    margin-top: 1.5rem;
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
+.btn-group { margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; }
 
 .btn {
-    display: inline-block;
-    padding: 0.6rem 1.6rem;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: opacity 0.2s ease;
-    cursor: pointer;
-    border: none;
-    font-family: inherit;
+    display: inline-block; padding: 0.6rem 1.6rem; border-radius: 6px;
+    text-decoration: none; font-weight: 600; font-size: 0.95rem;
+    transition: opacity 0.2s ease; cursor: pointer; border: none; font-family: inherit;
 }
-
-.btn:hover {
-    opacity: 0.85;
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.btn-primary {
-    background-color: #333;
-    color: #fff;
-}
-
-.btn-secondary {
-    background-color: #fff;
-    color: #333;
-    border: 1px solid #ccc;
-}
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background-color: #333; color: #fff; }
+.btn-secondary { background-color: #fff; color: #333; border: 1px solid #ccc; }
 
 /* === Back Link === */
 .back-link {
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
-    text-decoration: none;
-    color: #555;
-    font-size: 0.9rem;
+    position: absolute; top: 1.5rem; left: 1.5rem;
+    text-decoration: none; color: #555; font-size: 0.9rem;
 }
+.back-link:hover { color: #000; }
 
-.back-link:hover {
-    color: #000;
-}
-
-/* === Form Styles === */
+/* === Form === */
 .form-container {
-    background: #fff;
-    padding: 2.5rem;
-    border-radius: 12px;
+    background: #fff; padding: 2.5rem; border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    width: 100%;
-    max-width: 400px;
-    margin: 0 auto;
+    width: 100%; max-width: 400px; margin: 0 auto;
 }
+.form-step { display: none; }
+.form-step.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+.hidden { display: none !important; }
+.form-step h2 { margin-bottom: 0.5rem; color: #333; }
+.subtitle { color: #666; font-size: 0.9rem; margin-bottom: 1.5rem; }
+.highlight-email { font-weight: 600; color: #333; }
 
-.form-step {
-    display: none;
-}
-
-.form-step.active {
-    display: block;
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.hidden {
-    display: none !important;
-}
-
-.form-step h2 {
-    margin-bottom: 0.5rem;
-    color: #333;
-}
-
-.subtitle {
-    color: #666;
-    font-size: 0.9rem;
-    margin-bottom: 1.5rem;
-}
-
-.highlight-email {
-    font-weight: 600;
-    color: #333;
-}
-
-.form-group {
-    margin-bottom: 1.2rem;
-    text-align: left;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.4rem;
-    font-size: 0.9rem;
-    color: #444;
-    font-weight: 500;
-}
-
+.form-group { margin-bottom: 1.2rem; text-align: left; }
+.form-group label { display: block; margin-bottom: 0.4rem; font-size: 0.9rem; color: #444; font-weight: 500; }
 .form-group input {
-    width: 100%;
-    padding: 0.7rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-family: inherit;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+    width: 100%; padding: 0.7rem; border: 1px solid #ddd;
+    border-radius: 6px; font-family: inherit; font-size: 1rem; transition: border-color 0.2s;
 }
+.form-group input:focus { outline: none; border-color: #333; }
 
-.form-group input:focus {
-    outline: none;
-    border-color: #333;
-}
-
-.btn-block {
-    width: 100%;
-    display: block;
-}
-
-.mt-1 {
-    margin-top: 0.75rem;
-}
-
-.error-msg {
-    color: #d93025;
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-    min-height: 1.2em;
-}
+.btn-block { width: 100%; display: block; }
+.mt-1 { margin-top: 0.75rem; }
+.error-msg { color: #d93025; font-size: 0.85rem; margin-bottom: 1rem; min-height: 1.2em; }
 
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(5px); }

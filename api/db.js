@@ -4,19 +4,17 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
+  ssl: { rejectUnauthorized: false }
 });
 
-// Create the users table if it doesn't exist
 const initDb = async () => {
   try {
     // Base table (signup columns)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
-        username VARCHAR(255) NOT NULL,
+        username VARCHAR(255) UNIQUE NOT NULL,
+        full_name VARCHAR(255) NOT NULL,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
         otp VARCHAR(6) NULL,
