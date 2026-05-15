@@ -155,7 +155,11 @@
                 }
 
                 alert('Account Verified! Your account has been created successfully.');
-                window.location.href = '../signin/signin.html';
+                localStorage.setItem('user', JSON.stringify({
+                    username: document.getElementById('username').value.trim(),
+                    email: userEmail
+                }));
+                window.location.href = '../landing.html';
             } catch (err) {
                 step2Error.textContent = 'Network error. Please try again.';
                 verifyBtn.disabled = false;

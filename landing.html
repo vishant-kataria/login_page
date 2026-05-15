@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home | Auth Project</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background: #fff;
+            border-bottom: 1px solid #eee;
+        }
+        .navbar-brand { font-weight: 700; font-size: 1.1rem; }
+
+        /* Profile Icon */
+        .profile-wrapper { position: relative; }
+        .profile-icon {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: #333;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            user-select: none;
+            transition: opacity 0.2s;
+        }
+        .profile-icon:hover { opacity: 0.8; }
+
+        /* Dropdown */
+        .profile-dropdown {
+            display: none;
+            position: absolute;
+            top: 48px;
+            right: 0;
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            min-width: 160px;
+            z-index: 10;
+            overflow: hidden;
+        }
+        .profile-dropdown.open { display: block; }
+        .profile-dropdown a {
+            display: block;
+            padding: 0.7rem 1rem;
+            text-decoration: none;
+            color: #333;
+            font-size: 0.9rem;
+            transition: background 0.15s;
+        }
+        .profile-dropdown a:hover { background: #f5f5f5; }
+        .profile-dropdown .divider { border-top: 1px solid #eee; }
+
+        /* Main Content */
+        .main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 70px);
+        }
+        .main h1 { font-size: 1.5rem; color: #888; font-weight: 400; }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <span class="navbar-brand">MyApp</span>
+        <div class="profile-wrapper">
+            <div class="profile-icon" id="profileIcon">U</div>
+            <div class="profile-dropdown" id="profileDropdown">
+                <a href="profile.html">Profile</a>
+                <div class="divider"></div>
+                <a href="#" id="logoutBtn">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main">
+        <h1>This is the Landing Page</h1>
+    </main>
+
+    <script>
+        // Check if user is logged in
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'signin/signin.html';
+        } else {
+            // Set profile icon initial
+            const icon = document.getElementById('profileIcon');
+            const initial = (user.username || user.email || 'U').charAt(0).toUpperCase();
+            icon.textContent = initial;
+        }
+
+        // Toggle dropdown
+        const profileIcon = document.getElementById('profileIcon');
+        const dropdown = document.getElementById('profileDropdown');
+
+        profileIcon.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', () => {
+            dropdown.classList.remove('open');
+        });
+
+        // Logout
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('user');
+            window.location.href = 'signin/signin.html';
+        });
+    </script>
+</body>
+</html>

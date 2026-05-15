@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile | Auth Project</title>
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: #f5f5f5;
+            color: #333;
+            padding: 2rem;
+        }
+        .back-link {
+            text-decoration: none; color: #555; font-size: 0.9rem;
+        }
+        .back-link:hover { color: #000; }
+
+        .profile-card {
+            background: #fff;
+            padding: 2.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 450px;
+            margin: 3rem auto;
+        }
+        .profile-card h2 { margin-bottom: 1.5rem; }
+
+        .profile-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.95rem;
+        }
+        .profile-row:last-child { border-bottom: none; }
+        .profile-label { color: #888; }
+        .profile-value { font-weight: 500; }
+    </style>
+</head>
+<body>
+    <a href="landing.html" class="back-link">&larr; Back to Home</a>
+
+    <div class="profile-card">
+        <h2>Profile</h2>
+        <div class="profile-row">
+            <span class="profile-label">Username</span>
+            <span class="profile-value" id="p-username">—</span>
+        </div>
+        <div class="profile-row">
+            <span class="profile-label">Email</span>
+            <span class="profile-value" id="p-email">—</span>
+        </div>
+    </div>
+
+    <script>
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+            window.location.href = 'signin/signin.html';
+        } else {
+            document.getElementById('p-username').textContent = user.username || '—';
+            document.getElementById('p-email').textContent = user.email || '—';
+        }
+    </script>
+</body>
+</html>
