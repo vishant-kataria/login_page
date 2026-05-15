@@ -8,12 +8,24 @@
     <link rel="stylesheet" href="../style.css">
 </head>
 <body>
-    <a href="../index.html" class="back-link">&larr; Back to Home</a>
+    <!-- Aurora Background -->
+    <div class="aurora-bg">
+        <div class="aurora-glow"></div>
+    </div>
 
     <div class="form-container">
+        <!-- Close Button -->
+        <a href="../index.html" class="close-btn" title="Close">&times;</a>
+
+        <!-- Tab Toggle -->
+        <div class="tab-toggle">
+            <a href="#" class="active">Sign up</a>
+            <a href="../signin/signin.html">Sign in</a>
+        </div>
+
         <!-- Step 1: User Details -->
         <div id="step-1" class="form-step active">
-            <h2>Create Account</h2>
+            <h2>Create an account</h2>
             <p class="subtitle">Join us to get started.</p>
             <form id="signupForm">
                 <div class="form-group">
@@ -33,7 +45,7 @@
                     <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
                 </div>
                 <p id="step1-error" class="error-msg"></p>
-                <button type="submit" id="signupBtn" class="btn btn-primary btn-block">Continue</button>
+                <button type="submit" id="signupBtn" class="btn btn-primary btn-block">Create an account</button>
             </form>
         </div>
 
@@ -107,7 +119,7 @@
                 if (!response.ok) {
                     step1Error.textContent = data.message || 'Something went wrong.';
                     signupBtn.disabled = false;
-                    signupBtn.textContent = 'Continue';
+                    signupBtn.textContent = 'Create an account';
                     return;
                 }
 
@@ -122,7 +134,7 @@
             } catch (err) {
                 step1Error.textContent = 'Network error. Please try again.';
                 signupBtn.disabled = false;
-                signupBtn.textContent = 'Continue';
+                signupBtn.textContent = 'Create an account';
             }
         });
 
@@ -174,7 +186,7 @@
             step1.classList.remove('hidden');
             step1.classList.add('active');
             signupBtn.disabled = false;
-            signupBtn.textContent = 'Continue';
+            signupBtn.textContent = 'Create an account';
         });
     </script>
 </body>
