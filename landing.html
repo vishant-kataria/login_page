@@ -11,6 +11,7 @@
             min-height: 100vh;
             background: #f5f5f5;
             color: #333;
+            overflow-x: hidden;
         }
 
         /* Navbar */
@@ -20,9 +21,87 @@
             align-items: center;
             padding: 1rem 2rem;
             background: #fff;
-            border-bottom: 1px solid #eee;
+            position: relative;
+            z-index: 5;
         }
         .navbar-brand { font-weight: 700; font-size: 1.1rem; }
+
+        /* ===== Rainbow Line Under Navbar ===== */
+        .rainbow-line {
+            height: 3px;
+            position: relative;
+            overflow: hidden;
+            background: #eee;
+        }
+
+        .rainbow-line::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent 0%,
+                rgba(255, 100, 100, 0.05) 5%,
+                rgba(255, 150, 50, 0.1) 15%,
+                rgba(255, 220, 50, 0.2) 25%,
+                rgba(100, 220, 100, 0.3) 40%,
+                rgba(80, 180, 255, 0.45) 55%,
+                rgba(130, 100, 255, 0.6) 70%,
+                rgba(200, 80, 255, 0.75) 80%,
+                rgba(255, 100, 180, 0.85) 90%,
+                rgba(255, 120, 120, 0.9) 100%
+            );
+            animation: rainbowSlide 4s linear infinite;
+        }
+
+        @keyframes rainbowSlide {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+        }
+
+        /* ===== Ambient Glow (subtle on body) ===== */
+        .ambient-glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .ambient-glow::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(180, 130, 255, 0.06) 0%, transparent 70%);
+            animation: floatGlow 8s ease-in-out infinite;
+        }
+
+        .ambient-glow::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            left: -5%;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(100, 200, 255, 0.04) 0%, transparent 70%);
+            animation: floatGlow 10s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatGlow {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(30px, 20px) scale(1.1); }
+        }
 
         /* Profile Icon */
         .profile-wrapper { position: relative; }
@@ -55,6 +134,7 @@
             min-width: 160px;
             z-index: 10;
             overflow: hidden;
+            animation: dropIn 0.15s ease-out;
         }
         .profile-dropdown.open { display: block; }
         .profile-dropdown a {
@@ -68,17 +148,27 @@
         .profile-dropdown a:hover { background: #f5f5f5; }
         .profile-dropdown .divider { border-top: 1px solid #eee; }
 
+        @keyframes dropIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Main Content */
         .main {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: calc(100vh - 70px);
+            min-height: calc(100vh - 73px);
+            position: relative;
+            z-index: 1;
         }
         .main h1 { font-size: 1.5rem; color: #888; font-weight: 400; }
     </style>
 </head>
 <body>
+    <!-- Subtle ambient background glow -->
+    <div class="ambient-glow"></div>
+
     <nav class="navbar">
         <span class="navbar-brand">MyApp</span>
         <div class="profile-wrapper">
@@ -91,23 +181,22 @@
         </div>
     </nav>
 
+    <!-- Animated rainbow line -->
+    <div class="rainbow-line"></div>
+
     <main class="main">
         <h1>This is the Landing Page</h1>
     </main>
 
     <script>
-        // Check if user is logged in
         const user = JSON.parse(localStorage.getItem('user'));
         if (!user) {
             window.location.href = 'signin/signin.html';
         } else {
-            // Set profile icon initial
             const icon = document.getElementById('profileIcon');
-            const initial = (user.username || user.email || 'U').charAt(0).toUpperCase();
-            icon.textContent = initial;
+            icon.textContent = (user.username || user.email || 'U').charAt(0).toUpperCase();
         }
 
-        // Toggle dropdown
         const profileIcon = document.getElementById('profileIcon');
         const dropdown = document.getElementById('profileDropdown');
 
@@ -120,7 +209,6 @@
             dropdown.classList.remove('open');
         });
 
-        // Logout
         document.getElementById('logoutBtn').addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.removeItem('user');
