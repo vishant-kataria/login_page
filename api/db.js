@@ -47,7 +47,7 @@ const initDb = async () => {
 
     console.log('Database initialized: users table is ready with all columns.');
   } catch (err) {
-    console.error('Error initializing database:', err.message);
+    console.error('Error initializing database:', err);
   }
 };
 
