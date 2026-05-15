@@ -82,9 +82,9 @@ app.post('/api/signup', async (req, res) => {
 
     res.status(200).json({ message: 'OTP sent successfully.' });
   } catch (error) {
-    console.error('Signup Error:', error.message);
+    console.error('Signup Error:', error);
     if (error.response) {
-      console.error('SendGrid Error Body:', JSON.stringify(error.response.body));
+      console.error('SendGrid Response:', JSON.stringify(error.response.body));
     }
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
