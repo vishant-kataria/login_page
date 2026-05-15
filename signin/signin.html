@@ -24,8 +24,7 @@
                 <div class="form-group">
                     <label for="signin-password">Password</label>
                     <input type="password" id="signin-password" name="password" placeholder="Enter your password" minlength="6" required>
-                    <div class="forgot-links">
-                        <a href="#" id="forgot-email-link" class="forgot-link">Forget Email</a>
+                    <div class="forgot-links" style="justify-content: flex-end;">
                         <a href="#" id="forgot-password-link" class="forgot-link">Forget Password</a>
                     </div>
                 </div>
@@ -89,25 +88,6 @@
                     <button type="button" id="resend-otp-btn" class="resend-btn hidden">Resend Code</button>
                 </div>
                 <button type="button" id="back-to-method" class="btn btn-secondary btn-block mt-1">Back</button>
-            </form>
-        </div>
-
-        <!-- Step 4: Forgot Email -->
-        <div id="step-forgot-email" class="form-step hidden">
-            <h2>Recover Email</h2>
-            <p class="subtitle">Enter your phone number to find your account</p>
-            <form id="forgotEmailForm">
-                <div class="form-group">
-                    <label for="recover-phone">Phone Number</label>
-                    <input type="tel" id="recover-phone" name="phone" placeholder="Enter your phone number" required>
-                </div>
-                <p id="forgot-email-error" class="error-msg"></p>
-                <div id="recovered-email-result" class="recovered-result hidden">
-                    <p>Your email address is:</p>
-                    <p class="recovered-email-display" id="recovered-email-text"></p>
-                </div>
-                <button type="submit" id="recoverEmailBtn" class="btn btn-primary btn-block">Find My Email</button>
-                <button type="button" id="back-from-forgot-email" class="btn btn-secondary btn-block mt-1">Back to Sign In</button>
             </form>
         </div>
 

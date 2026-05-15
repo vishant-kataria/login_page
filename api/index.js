@@ -340,43 +340,6 @@ app.post('/api/signin/verify-otp', async (req, res) => {
   }
 });
 
-// ============================================
-// Endpoint 6: POST /api/signin/recover-email
-// Finds a user's masked email by their phone number
-// ============================================
-app.post('/api/signin/recover-email', async (req, res) => {
-  const { phone } = req.body;
-
-  if (!phone) {
-    return res.status(400).json({ message: 'Phone number is required.' });
-  }
-
-  try {
-    const result = await pool.query(
-      'SELECT email FROM users WHERE phone = $1 AND is_verified = TRUE',
-      [phone]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'No verified account found with this phone number.' });
-    }
-
-    const email = result.rows[0].email;
-    // Mask the email: v***t@gmail.com
-    const [local, domain] = email.split('@');
-    let maskedEmail;
-    if (local.length <= 2) {
-      maskedEmail = local[0] + '***@' + domain;
-    } else {
-      maskedEmail = local[0] + '***' + local[local.length - 1] + '@' + domain;
-    }
-
-    res.status(200).json({ maskedEmail });
-  } catch (error) {
-    console.error('Recover Email Error:', error.message);
-    res.status(500).json({ message: 'Server error. Please try again later.' });
-  }
-});
 
 // ============================================
 // Endpoint 7: POST /api/signin/forgot-password

@@ -12,7 +12,6 @@
         credentials: document.getElementById('step-credentials'),
         otpMethod: document.getElementById('step-otp-method'),
         otpVerify: document.getElementById('step-otp-verify'),
-        forgotEmail: document.getElementById('step-forgot-email'),
         forgotPassword: document.getElementById('step-forgot-password'),
         resetPassword: document.getElementById('step-reset-password'),
     };
@@ -20,14 +19,12 @@
     // --- Forms ---
     const credentialsForm = document.getElementById('credentialsForm');
     const otpVerifyForm = document.getElementById('otpVerifyForm');
-    const forgotEmailForm = document.getElementById('forgotEmailForm');
     const forgotPasswordForm = document.getElementById('forgotPasswordForm');
     const resetPasswordForm = document.getElementById('resetPasswordForm');
 
     // --- Buttons ---
     const signinBtn = document.getElementById('signinBtn');
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const recoverEmailBtn = document.getElementById('recoverEmailBtn');
     const sendResetBtn = document.getElementById('sendResetBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const resendOtpBtn = document.getElementById('resend-otp-btn');
@@ -36,7 +33,6 @@
     const credentialsError = document.getElementById('credentials-error');
     const otpMethodError = document.getElementById('otp-method-error');
     const otpVerifyError = document.getElementById('otp-verify-error');
-    const forgotEmailError = document.getElementById('forgot-email-error');
     const forgotPasswordError = document.getElementById('forgot-password-error');
     const resetPasswordError = document.getElementById('reset-password-error');
 
@@ -304,52 +300,6 @@
     });
 
     // ============================================
-    // Forgot Email Flow
-    // ============================================
-    document.getElementById('forgot-email-link').addEventListener('click', (e) => {
-        e.preventDefault();
-        showStep('forgotEmail');
-    });
-
-    forgotEmailForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        forgotEmailError.textContent = '';
-        document.getElementById('recovered-email-result').classList.add('hidden');
-
-        const phone = document.getElementById('recover-phone').value.trim();
-        if (!phone) {
-            forgotEmailError.textContent = 'Please enter your phone number.';
-            return;
-        }
-
-        setLoading(recoverEmailBtn, true);
-
-        try {
-            const response = await fetch('/api/signin/recover-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ phone }),
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                forgotEmailError.textContent = data.message || 'Username not found.';
-                setLoading(recoverEmailBtn, false, 'Find My Email');
-                return;
-            }
-
-            // Show the masked email
-            document.getElementById('recovered-email-text').textContent = data.maskedEmail || '***';
-            document.getElementById('recovered-email-result').classList.remove('hidden');
-            setLoading(recoverEmailBtn, false, 'Find My Email');
-        } catch (err) {
-            forgotEmailError.textContent = 'Network error. Please try again.';
-            setLoading(recoverEmailBtn, false, 'Find My Email');
-        }
-    });
-
-    // ============================================
     // Forgot Password Flow
     // ============================================
     document.getElementById('forgot-password-link').addEventListener('click', (e) => {
@@ -452,11 +402,6 @@
     document.getElementById('back-to-method').addEventListener('click', () => {
         if (countdownInterval) clearInterval(countdownInterval);
         showStep('otpMethod');
-    });
-
-    document.getElementById('back-from-forgot-email').addEventListener('click', () => {
-        document.getElementById('recovered-email-result').classList.add('hidden');
-        showStep('credentials');
     });
 
     document.getElementById('back-from-forgot-password').addEventListener('click', () => {
