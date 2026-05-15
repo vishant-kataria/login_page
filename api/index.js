@@ -144,23 +144,27 @@ app.post('/api/verify', async (req, res) => {
 
 // ============================================
 // Endpoint 3: POST /api/signin
-// Verifies email + password credentials
+// Verifies email/username + password credentials
 // ============================================
 app.post('/api/signin', async (req, res) => {
-  const { email, password } = req.body;
+  const { identifier, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required.' });
+  if (!identifier || !password) {
+    return res.status(400).json({ message: 'Email/username and password are required.' });
   }
 
   try {
+    // Check if identifier is an email or username
+    const isEmail = identifier.includes('@');
     const result = await pool.query(
-      'SELECT id, email, password_hash, phone, is_verified FROM users WHERE email = $1',
-      [email]
+      isEmail
+        ? 'SELECT id, email, password_hash, phone, is_verified FROM users WHERE email = $1'
+        : 'SELECT id, email, password_hash, phone, is_verified FROM users WHERE username = $1',
+      [identifier]
     );
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'No account found with this email.' });
+      return res.status(400).json({ message: 'No account found.' });
     }
 
     const user = result.rows[0];
@@ -182,6 +186,7 @@ app.post('/api/signin', async (req, res) => {
 
     res.status(200).json({
       message: 'Credentials verified.',
+      email: user.email,
       maskedPhone,
     });
   } catch (error) {
@@ -337,23 +342,23 @@ app.post('/api/signin/verify-otp', async (req, res) => {
 
 // ============================================
 // Endpoint 6: POST /api/signin/recover-email
-// Finds a user's masked email by their username
+// Finds a user's masked email by their phone number
 // ============================================
 app.post('/api/signin/recover-email', async (req, res) => {
-  const { username } = req.body;
+  const { phone } = req.body;
 
-  if (!username) {
-    return res.status(400).json({ message: 'Username is required.' });
+  if (!phone) {
+    return res.status(400).json({ message: 'Phone number is required.' });
   }
 
   try {
     const result = await pool.query(
-      'SELECT email FROM users WHERE username = $1 AND is_verified = TRUE',
-      [username]
+      'SELECT email FROM users WHERE phone = $1 AND is_verified = TRUE',
+      [phone]
     );
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'No verified account found with this username.' });
+      return res.status(400).json({ message: 'No verified account found with this phone number.' });
     }
 
     const email = result.rows[0].email;

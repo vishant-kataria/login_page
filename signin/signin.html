@@ -18,8 +18,8 @@
             <p class="subtitle">Sign in to your account</p>
             <form id="credentialsForm">
                 <div class="form-group">
-                    <label for="signin-email">Email</label>
-                    <input type="email" id="signin-email" name="email" placeholder="you@example.com" required>
+                    <label for="signin-identifier">Email or Username</label>
+                    <input type="text" id="signin-identifier" name="identifier" placeholder="Email or username" required>
                 </div>
                 <div class="form-group">
                     <label for="signin-password">Password</label>
@@ -95,11 +95,11 @@
         <!-- Step 4: Forgot Email -->
         <div id="step-forgot-email" class="form-step hidden">
             <h2>Recover Email</h2>
-            <p class="subtitle">Enter your username to find your account</p>
+            <p class="subtitle">Enter your phone number to find your account</p>
             <form id="forgotEmailForm">
                 <div class="form-group">
-                    <label for="recover-username">Username</label>
-                    <input type="text" id="recover-username" name="username" placeholder="Enter your username" required>
+                    <label for="recover-phone">Phone Number</label>
+                    <input type="tel" id="recover-phone" name="phone" placeholder="Enter your phone number" required>
                 </div>
                 <p id="forgot-email-error" class="error-msg"></p>
                 <div id="recovered-email-result" class="recovered-result hidden">

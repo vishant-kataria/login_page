@@ -168,10 +168,10 @@
         e.preventDefault();
         credentialsError.textContent = '';
 
-        const email = document.getElementById('signin-email').value.trim();
+        const identifier = document.getElementById('signin-identifier').value.trim();
         const password = document.getElementById('signin-password').value;
 
-        if (!email || !password) {
+        if (!identifier || !password) {
             credentialsError.textContent = 'Please fill in all fields.';
             return;
         }
@@ -182,7 +182,7 @@
             const response = await fetch('/api/signin', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ identifier, password }),
             });
 
             const data = await response.json();
@@ -194,8 +194,8 @@
             }
 
             // Credentials verified — move to OTP method selection
-            userEmail = email;
-            document.getElementById('otp-masked-email').textContent = 'Send code to ' + maskEmail(email);
+            userEmail = data.email;
+            document.getElementById('otp-masked-email').textContent = 'Send code to ' + maskEmail(data.email);
 
             // Show or hide SMS option based on whether user has a phone number
             const smsBtn = document.getElementById('otp-sms-btn');
@@ -316,9 +316,9 @@
         forgotEmailError.textContent = '';
         document.getElementById('recovered-email-result').classList.add('hidden');
 
-        const username = document.getElementById('recover-username').value.trim();
-        if (!username) {
-            forgotEmailError.textContent = 'Please enter your username.';
+        const phone = document.getElementById('recover-phone').value.trim();
+        if (!phone) {
+            forgotEmailError.textContent = 'Please enter your phone number.';
             return;
         }
 
@@ -328,7 +328,7 @@
             const response = await fetch('/api/signin/recover-email', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username }),
+                body: JSON.stringify({ phone }),
             });
 
             const data = await response.json();
