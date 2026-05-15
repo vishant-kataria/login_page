@@ -3,14 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Sign in to your account">
+    <meta name="description" content="Sign in to your account securely with OTP verification">
     <title>Sign In | Auth Project</title>
     <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="signin.css">
 </head>
 <body>
     <a href="../index.html" class="back-link">&larr; Back to Home</a>
 
-    <!-- Build your sign-in form here -->
+    <div class="form-container">
+        <!-- Step 1: Credentials -->
+        <div id="step-credentials" class="form-step active">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Sign in to your account</p>
+            <form id="credentialsForm">
+                <div class="form-group">
+                    <label for="signin-email">Email</label>
+                    <input type="email" id="signin-email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="signin-password">Password</label>
+                    <input type="password" id="signin-password" name="password" placeholder="Enter your password" minlength="6" required>
+                    <div class="forgot-links">
+                        <a href="#" id="forgot-email-link" class="forgot-link">Forget Email</a>
+                        <a href="#" id="forgot-password-link" class="forgot-link">Forget Password</a>
+                    </div>
+                </div>
+                <p id="credentials-error" class="error-msg"></p>
+                <button type="submit" id="signinBtn" class="btn btn-primary btn-block">Sign In</button>
+            </form>
+            <p class="form-footer">Don't have an account? <a href="../signup/signup.html" class="form-link">Sign Up</a></p>
+        </div>
 
+        <!-- Step 2: Choose OTP Method -->
+        <div id="step-otp-method" class="form-step hidden">
+            <h2>Verify Identity</h2>
+            <p class="subtitle">Choose how you'd like to receive your verification code</p>
+            <div class="otp-method-options">
+                <button type="button" id="otp-email-btn" class="otp-method-card">
+                    <div class="otp-method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                    </div>
+                    <div class="otp-method-text">
+                        <span class="otp-method-title">Email</span>
+                        <span id="otp-masked-email" class="otp-method-detail">Send code to your email</span>
+                    </div>
+                </button>
+                <button type="button" id="otp-sms-btn" class="otp-method-card">
+                    <div class="otp-method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                            <path d="M12 18h.01"/>
+                        </svg>
+                    </div>
+                    <div class="otp-method-text">
+                        <span class="otp-method-title">Mobile SMS</span>
+                        <span id="otp-masked-phone" class="otp-method-detail">Send code via SMS</span>
+                    </div>
+                </button>
+            </div>
+            <p id="otp-method-error" class="error-msg"></p>
+            <button type="button" id="back-to-credentials" class="btn btn-secondary btn-block mt-1">Back</button>
+        </div>
+
+        <!-- Step 3: Enter OTP -->
+        <div id="step-otp-verify" class="form-step hidden">
+            <h2>Enter Code</h2>
+            <p class="subtitle">We sent a 6-digit code to <span id="otp-destination" class="highlight-email"></span></p>
+            <form id="otpVerifyForm">
+                <div class="otp-input-group">
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" autocomplete="one-time-code" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
+                    <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
+                </div>
+                <p id="otp-verify-error" class="error-msg"></p>
+                <button type="submit" id="verifyOtpBtn" class="btn btn-primary btn-block">Verify & Sign In</button>
+                <div class="resend-row">
+                    <span id="resend-timer" class="resend-timer">Resend code in <strong id="countdown">60</strong>s</span>
+                    <button type="button" id="resend-otp-btn" class="resend-btn hidden">Resend Code</button>
+                </div>
+                <button type="button" id="back-to-method" class="btn btn-secondary btn-block mt-1">Back</button>
+            </form>
+        </div>
+
+        <!-- Step 4: Forgot Email -->
+        <div id="step-forgot-email" class="form-step hidden">
+            <h2>Recover Email</h2>
+            <p class="subtitle">Enter your username to find your account</p>
+            <form id="forgotEmailForm">
+                <div class="form-group">
+                    <label for="recover-username">Username</label>
+                    <input type="text" id="recover-username" name="username" placeholder="Enter your username" required>
+                </div>
+                <p id="forgot-email-error" class="error-msg"></p>
+                <div id="recovered-email-result" class="recovered-result hidden">
+                    <p>Your email address is:</p>
+                    <p class="recovered-email-display" id="recovered-email-text"></p>
+                </div>
+                <button type="submit" id="recoverEmailBtn" class="btn btn-primary btn-block">Find My Email</button>
+                <button type="button" id="back-from-forgot-email" class="btn btn-secondary btn-block mt-1">Back to Sign In</button>
+            </form>
+        </div>
+
+        <!-- Step 5: Forgot Password -->
+        <div id="step-forgot-password" class="form-step hidden">
+            <h2>Reset Password</h2>
+            <p class="subtitle">Enter your email to receive a reset code</p>
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="reset-email">Email</label>
+                    <input type="email" id="reset-email" name="email" placeholder="you@example.com" required>
+                </div>
+                <p id="forgot-password-error" class="error-msg"></p>
+                <button type="submit" id="sendResetBtn" class="btn btn-primary btn-block">Send Reset Code</button>
+                <button type="button" id="back-from-forgot-password" class="btn btn-secondary btn-block mt-1">Back to Sign In</button>
+            </form>
+        </div>
+
+        <!-- Step 6: Reset Password - Enter new password -->
+        <div id="step-reset-password" class="form-step hidden">
+            <h2>Set New Password</h2>
+            <p class="subtitle">Enter the code sent to <span id="reset-destination" class="highlight-email"></span></p>
+            <form id="resetPasswordForm">
+                <div class="form-group">
+                    <label for="reset-otp">Reset Code</label>
+                    <input type="text" id="reset-otp" name="otp" maxlength="6" pattern="\d{6}" placeholder="123456" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-password">New Password</label>
+                    <input type="password" id="new-password" name="password" placeholder="Min 6 characters" minlength="6" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-new-password">Confirm Password</label>
+                    <input type="password" id="confirm-new-password" name="confirmPassword" placeholder="Re-enter new password" minlength="6" required>
+                </div>
+                <p id="reset-password-error" class="error-msg"></p>
+                <button type="submit" id="resetPasswordBtn" class="btn btn-primary btn-block">Reset Password</button>
+                <button type="button" id="back-from-reset" class="btn btn-secondary btn-block mt-1">Back</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="signin.js"></script>
 </body>
 </html>

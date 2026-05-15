@@ -12,6 +12,7 @@ const pool = new Pool({
 // Create the users table if it doesn't exist
 const initDb = async () => {
   try {
+    // Base table (signup columns)
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -24,7 +25,27 @@ const initDb = async () => {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
-    console.log('Database initialized: users table is ready.');
+
+    // Add sign-in specific columns (safe to run on existing tables)
+    const newColumns = [
+      { name: 'phone', type: 'VARCHAR(15) NULL' },
+      { name: 'signin_otp', type: 'VARCHAR(6) NULL' },
+      { name: 'signin_otp_expires_at', type: 'TIMESTAMP NULL' },
+      { name: 'reset_otp', type: 'VARCHAR(6) NULL' },
+      { name: 'reset_otp_expires_at', type: 'TIMESTAMP NULL' },
+    ];
+
+    for (const col of newColumns) {
+      await pool.query(`
+        DO $$ BEGIN
+          ALTER TABLE users ADD COLUMN ${col.name} ${col.type};
+        EXCEPTION
+          WHEN duplicate_column THEN NULL;
+        END $$;
+      `);
+    }
+
+    console.log('Database initialized: users table is ready with all columns.');
   } catch (err) {
     console.error('Error initializing database:', err.message);
   }

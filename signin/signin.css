@@ -1,0 +1,260 @@
+/* === Sign-in Page Specific Styles === */
+
+/* Forgot Links Row */
+.forgot-links {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+}
+
+.forgot-link {
+    font-size: 0.82rem;
+    color: #888;
+    text-decoration: none;
+    transition: color 0.2s ease;
+    cursor: pointer;
+}
+
+.forgot-link:hover {
+    color: #333;
+    text-decoration: underline;
+}
+
+/* Form Footer (link to signup) */
+.form-footer {
+    text-align: center;
+    margin-top: 1.25rem;
+    font-size: 0.88rem;
+    color: #777;
+}
+
+.form-link {
+    color: #333;
+    font-weight: 600;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.form-link:hover {
+    opacity: 0.7;
+    text-decoration: underline;
+}
+
+/* === OTP Method Selection Cards === */
+.otp-method-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.otp-method-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 10px;
+    background: #fafafa;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: left;
+    font-family: inherit;
+    width: 100%;
+}
+
+.otp-method-card:hover {
+    border-color: #333;
+    background: #f5f5f5;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.otp-method-card:active {
+    transform: translateY(0);
+}
+
+.otp-method-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    background: #333;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.otp-method-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.otp-method-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.otp-method-detail {
+    font-size: 0.82rem;
+    color: #888;
+}
+
+/* === OTP Digit Inputs === */
+.otp-input-group {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 1.2rem;
+}
+
+.otp-digit {
+    width: 46px;
+    height: 54px;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    border: 1.5px solid #ddd;
+    border-radius: 8px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+    background: #fafafa;
+    color: #333;
+}
+
+.otp-digit:focus {
+    border-color: #333;
+    box-shadow: 0 0 0 2px rgba(51, 51, 51, 0.12);
+    background: #fff;
+}
+
+.otp-digit.filled {
+    border-color: #333;
+    background: #fff;
+}
+
+/* === Resend OTP Row === */
+.resend-row {
+    text-align: center;
+    margin-top: 0.75rem;
+    margin-bottom: 0.25rem;
+    min-height: 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.resend-timer {
+    font-size: 0.85rem;
+    color: #999;
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    color: #333;
+    font-weight: 600;
+    font-size: 0.88rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.resend-btn:hover {
+    background: #f0f0f0;
+    text-decoration: underline;
+}
+
+/* === Recovered Email Result === */
+.recovered-result {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.recovered-result p:first-child {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 0.35rem;
+}
+
+.recovered-email-display {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #333;
+    letter-spacing: 0.5px;
+}
+
+/* === Success State Animation === */
+@keyframes checkmark {
+    0% { transform: scale(0); opacity: 0; }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.success-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #22c55e;
+    color: #fff;
+    margin-bottom: 1rem;
+    animation: checkmark 0.4s ease-out;
+}
+
+/* === Loading Spinner on Buttons === */
+.btn.loading {
+    position: relative;
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn.loading::after {
+    content: '';
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    top: 50%;
+    left: 50%;
+    margin-top: -9px;
+    margin-left: -9px;
+    border: 2.5px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+.btn-secondary.loading::after {
+    border-color: rgba(51,51,51,0.2);
+    border-top-color: #333;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* === Responsive tweaks === */
+@media (max-width: 440px) {
+    .otp-digit {
+        width: 40px;
+        height: 48px;
+        font-size: 1.2rem;
+    }
+    
+    .otp-input-group {
+        gap: 0.35rem;
+    }
+}
