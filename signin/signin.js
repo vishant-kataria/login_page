@@ -285,9 +285,12 @@
 
             // Sign-in success!
             if (countdownInterval) clearInterval(countdownInterval);
+            localStorage.setItem('user', JSON.stringify({
+                username: data.user.username,
+                email: data.user.email
+            }));
             alert('Sign-in successful! Welcome back.');
-            // TODO: Redirect to dashboard or homepage
-            window.location.href = '../index.html';
+            window.location.href = '../landing.html';
         } catch (err) {
             otpVerifyError.textContent = 'Network error. Please try again.';
             setLoading(verifyOtpBtn, false, 'Verify & Sign In');
