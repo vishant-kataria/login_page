@@ -11,9 +11,7 @@ const pool = require('./db');
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// Serve static files (HTML, CSS, JS) from the project root
-app.use(express.static(require('path').join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '..')));
 
 // Initialize SendGrid
 console.log('SendGrid API Key loaded:', process.env.SENDGRID_API_KEY ? 'YES' : 'NO');
@@ -21,50 +19,45 @@ console.log('Database URL loaded:', process.env.DATABASE_URL ? 'YES' : 'NO');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // ============================================
-// Endpoint 1: POST /api/signup
-// Receives user details, generates OTP, emails it
+// POST /api/signup
 // ============================================
 app.post('/api/signup', async (req, res) => {
-  const { username, email, password } = req.body;
+  const { username, fullName, email, password } = req.body;
 
-  // Basic input validation
-  if (!username || !email || !password) {
+  if (!username || !fullName || !email || !password) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
   try {
-    // 1. Check if user already exists and is verified
-    const existingUser = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
-
-    if (existingUser.rows.length > 0 && existingUser.rows[0].is_verified === true) {
+    // Check if email already verified
+    const existingEmail = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
+    if (existingEmail.rows.length > 0 && existingEmail.rows[0].is_verified === true) {
       return res.status(400).json({ message: 'An account with this email already exists.' });
     }
 
-    // 2. Hash the password
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
+    // Check if username is taken by a verified user
+    const existingUsername = await pool.query('SELECT id, is_verified FROM users WHERE username = $1', [username]);
+    if (existingUsername.rows.length > 0 && existingUsername.rows[0].is_verified === true) {
+      return res.status(400).json({ message: 'This username is already taken.' });
+    }
 
-    // 3. Generate a cryptographically secure 6-digit OTP
+    const passwordHash = await bcrypt.hash(password, 10);
     const otp = crypto.randomInt(100000, 999999).toString();
-
-    // 4. Calculate expiration (10 minutes from now)
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-    // 5. Insert or update (upsert) the user in the database
     await pool.query(
-      `INSERT INTO users (username, email, password_hash, otp, otp_expires_at, is_verified)
-       VALUES ($1, $2, $3, $4, $5, FALSE)
+      `INSERT INTO users (username, full_name, email, password_hash, otp, otp_expires_at, is_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, FALSE)
        ON CONFLICT (email)
-       DO UPDATE SET username = $1, password_hash = $3, otp = $4, otp_expires_at = $5, is_verified = FALSE`,
-      [username, email, passwordHash, otp, otpExpiresAt]
+       DO UPDATE SET username = $1, full_name = $2, password_hash = $4, otp = $5, otp_expires_at = $6, is_verified = FALSE`,
+      [username, fullName, email, passwordHash, otp, otpExpiresAt]
     );
 
-    // 6. Send OTP email via SendGrid
-    const msg = {
+    await sgMail.send({
       to: email,
       from: 'vishantkataria2000@gmail.com',
       subject: 'Your Sign Up Verification Code',
-      text: `Your verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
+      text: `Your verification code is: ${otp}\nThis code will expire in 10 minutes.`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 400px; margin: 0 auto; padding: 20px;">
           <h2 style="color: #333;">Verify Your Email</h2>
@@ -75,24 +68,19 @@ app.post('/api/signup', async (req, res) => {
           <p style="color: #666; font-size: 14px;">This code will expire in 10 minutes.</p>
         </div>
       `,
-    };
-
-    await sgMail.send(msg);
-    console.log('OTP email sent successfully to:', email);
+    });
+    console.log('OTP sent to:', email);
 
     res.status(200).json({ message: 'OTP sent successfully.' });
   } catch (error) {
     console.error('Signup Error:', error);
-    if (error.response) {
-      console.error('SendGrid Response:', JSON.stringify(error.response.body));
-    }
+    if (error.response) console.error('SendGrid:', JSON.stringify(error.response.body));
     res.status(500).json({ message: 'Server error. Please try again later.' });
   }
 });
 
 // ============================================
-// Endpoint 2: POST /api/verify
-// Verifies OTP and activates the user account
+// POST /api/verify
 // ============================================
 app.post('/api/verify', async (req, res) => {
   const { email, otp } = req.body;
@@ -102,34 +90,27 @@ app.post('/api/verify', async (req, res) => {
   }
 
   try {
-    // 1. Find the user
     const result = await pool.query(
       'SELECT id, otp, otp_expires_at, is_verified FROM users WHERE email = $1',
       [email]
     );
 
     if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'Session expired. Please try signing up again.' });
+      return res.status(400).json({ message: 'Session expired. Please sign up again.' });
     }
 
     const user = result.rows[0];
 
-    // 2. Check if already verified
-    if (user.is_verified === true) {
-      return res.status(400).json({ message: 'This account is already verified.' });
+    if (user.is_verified) {
+      return res.status(400).json({ message: 'Account already verified.' });
     }
-
-    // 3. Check if OTP has expired
     if (new Date() > new Date(user.otp_expires_at)) {
-      return res.status(400).json({ message: 'OTP has expired. Please try signing up again.' });
+      return res.status(400).json({ message: 'OTP expired. Please sign up again.' });
     }
-
-    // 4. Check if OTP matches
     if (user.otp !== otp) {
-      return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
+      return res.status(400).json({ message: 'Invalid OTP.' });
     }
 
-    // 5. Mark user as verified and clear OTP fields
     await pool.query(
       'UPDATE users SET is_verified = TRUE, otp = NULL, otp_expires_at = NULL WHERE email = $1',
       [email]
@@ -137,7 +118,7 @@ app.post('/api/verify', async (req, res) => {
 
     res.status(200).json({ message: 'Account created successfully!' });
   } catch (error) {
-    console.error('Verification Error:', error.message);
+    console.error('Verify Error:', error);
     res.status(500).json({ message: 'Server error during verification.' });
   }
 });
@@ -158,8 +139,8 @@ app.post('/api/signin', async (req, res) => {
     const isEmail = identifier.includes('@');
     const result = await pool.query(
       isEmail
-        ? 'SELECT id, email, password_hash, phone, is_verified FROM users WHERE email = $1'
-        : 'SELECT id, email, password_hash, phone, is_verified FROM users WHERE username = $1',
+        ? 'SELECT id, email, password_hash, is_verified FROM users WHERE email = $1'
+        : 'SELECT id, email, password_hash, is_verified FROM users WHERE username = $1',
       [identifier]
     );
 
@@ -178,16 +159,9 @@ app.post('/api/signin', async (req, res) => {
       return res.status(400).json({ message: 'Incorrect password.' });
     }
 
-    // Mask the phone number for the frontend (e.g., ******7890)
-    let maskedPhone = null;
-    if (user.phone) {
-      maskedPhone = '******' + user.phone.slice(-4);
-    }
-
     res.status(200).json({
       message: 'Credentials verified.',
       email: user.email,
-      maskedPhone,
     });
   } catch (error) {
     console.error('Signin Error:', error.message);
@@ -197,10 +171,10 @@ app.post('/api/signin', async (req, res) => {
 
 // ============================================
 // Endpoint 4: POST /api/signin/send-otp
-// Sends sign-in OTP via Email (SendGrid) or SMS (Fast2SMS)
+// Sends sign-in OTP via Email (SendGrid)
 // ============================================
 app.post('/api/signin/send-otp', async (req, res) => {
-  const { email, method } = req.body; // method: 'email' or 'sms'
+  const { email, method } = req.body;
 
   if (!email || !method) {
     return res.status(400).json({ message: 'Email and method are required.' });
@@ -208,7 +182,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, email, phone FROM users WHERE email = $1 AND is_verified = TRUE',
+      'SELECT id, email FROM users WHERE email = $1 AND is_verified = TRUE',
       [email]
     );
 
@@ -220,7 +194,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
 
     // Generate 6-digit OTP
     const otp = crypto.randomInt(100000, 999999).toString();
-    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+    const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
     // Save OTP to database
     await pool.query(
@@ -229,7 +203,6 @@ app.post('/api/signin/send-otp', async (req, res) => {
     );
 
     if (method === 'email') {
-      // Send via SendGrid
       const msg = {
         to: email,
         from: 'vishantkataria2000@gmail.com',
@@ -249,42 +222,11 @@ app.post('/api/signin/send-otp', async (req, res) => {
       };
       await sgMail.send(msg);
       console.log('Sign-in OTP email sent to:', email);
-
-    } else if (method === 'sms') {
-      // Send via Fast2SMS
-      if (!user.phone) {
-        return res.status(400).json({ message: 'No phone number linked to this account.' });
-      }
-
-      const fast2smsResponse = await fetch('https://www.fast2sms.com/dev/bulkV2', {
-        method: 'POST',
-        headers: {
-          'authorization': process.env.FAST2SMS_API_KEY,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          route: 'otp',
-          variables_values: otp,
-          numbers: user.phone,
-        }),
-      });
-
-      const smsData = await fast2smsResponse.json();
-      if (!smsData.return) {
-        console.error('Fast2SMS Error:', smsData);
-        return res.status(500).json({ message: 'Failed to send SMS. Please try email instead.' });
-      }
-      console.log('Sign-in OTP SMS sent to:', user.phone);
     } else {
-      return res.status(400).json({ message: 'Invalid OTP method. Use "email" or "sms".' });
+      return res.status(400).json({ message: 'Invalid OTP method. Use "email".' });
     }
 
-    let maskedPhone = null;
-    if (user.phone) {
-      maskedPhone = '******' + user.phone.slice(-4);
-    }
-
-    res.status(200).json({ message: 'OTP sent successfully.', maskedPhone });
+    res.status(200).json({ message: 'OTP sent successfully.' });
   } catch (error) {
     console.error('Send OTP Error:', error.message);
     res.status(500).json({ message: 'Server error. Please try again later.' });
@@ -314,17 +256,14 @@ app.post('/api/signin/verify-otp', async (req, res) => {
 
     const user = result.rows[0];
 
-    // Check if OTP has expired
     if (new Date() > new Date(user.signin_otp_expires_at)) {
       return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
     }
 
-    // Check if OTP matches
     if (user.signin_otp !== otp) {
       return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
     }
 
-    // Clear the OTP fields after successful verification
     await pool.query(
       'UPDATE users SET signin_otp = NULL, signin_otp_expires_at = NULL WHERE email = $1',
       [email]
@@ -339,7 +278,6 @@ app.post('/api/signin/verify-otp', async (req, res) => {
     res.status(500).json({ message: 'Server error during verification.' });
   }
 });
-
 
 // ============================================
 // Endpoint 7: POST /api/signin/forgot-password
@@ -362,7 +300,6 @@ app.post('/api/signin/forgot-password', async (req, res) => {
       return res.status(400).json({ message: 'No verified account found with this email.' });
     }
 
-    // Generate reset OTP
     const otp = crypto.randomInt(100000, 999999).toString();
     const otpExpiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
@@ -371,7 +308,6 @@ app.post('/api/signin/forgot-password', async (req, res) => {
       [otp, otpExpiresAt, email]
     );
 
-    // Send reset code via SendGrid
     const msg = {
       to: email,
       from: 'vishantkataria2000@gmail.com',
@@ -426,19 +362,15 @@ app.post('/api/signin/reset-password', async (req, res) => {
 
     const user = result.rows[0];
 
-    // Check expiry
     if (new Date() > new Date(user.reset_otp_expires_at)) {
       return res.status(400).json({ message: 'Reset code has expired. Please request a new one.' });
     }
 
-    // Check OTP match
     if (user.reset_otp !== otp) {
       return res.status(400).json({ message: 'Invalid reset code.' });
     }
 
-    // Hash new password and update
-    const saltRounds = 10;
-    const newHash = await bcrypt.hash(newPassword, saltRounds);
+    const newHash = await bcrypt.hash(newPassword, 10);
 
     await pool.query(
       'UPDATE users SET password_hash = $1, reset_otp = NULL, reset_otp_expires_at = NULL WHERE email = $2',

@@ -30,7 +30,11 @@
             <form id="signupForm">
                 <div class="form-group">
                     <label for="username">Username</label>
-                    <input type="text" id="username" name="username" placeholder="Choose a username" required>
+                    <input type="text" id="username" name="username" placeholder="Choose a unique username" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" name="fullName" placeholder="Your full name" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -70,40 +74,32 @@
         const otpForm = document.getElementById('otpForm');
         const step1 = document.getElementById('step-1');
         const step2 = document.getElementById('step-2');
-        const backToStep1Btn = document.getElementById('backToStep1');
         const step1Error = document.getElementById('step1-error');
         const step2Error = document.getElementById('step2-error');
         const signupBtn = document.getElementById('signupBtn');
         const verifyBtn = document.getElementById('verifyBtn');
         const displayEmail = document.getElementById('display-email');
-
-        // Store the email from Step 1 so Step 2 can use it
         let userEmail = '';
 
-        // ============================================
-        // Step 1: Submit user details & request OTP
-        // ============================================
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             step1Error.textContent = '';
 
             const username = document.getElementById('username').value.trim();
+            const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
-            // Client-side validation
             if (password !== confirmPassword) {
                 step1Error.textContent = 'Passwords do not match!';
                 return;
             }
-
             if (password.length < 6) {
                 step1Error.textContent = 'Password must be at least 6 characters.';
                 return;
             }
 
-            // Disable button to prevent double-clicks
             signupBtn.disabled = true;
             signupBtn.textContent = 'Sending OTP...';
 
@@ -111,22 +107,19 @@
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password }),
+                    body: JSON.stringify({ username, fullName, email, password }),
                 });
-
                 const data = await response.json();
 
                 if (!response.ok) {
-                    step1Error.textContent = data.message || 'Something went wrong.';
+                    step1Error.textContent = data.message;
                     signupBtn.disabled = false;
                     signupBtn.textContent = 'Create an account';
                     return;
                 }
 
-                // Success! Save email and switch to Step 2
                 userEmail = email;
                 displayEmail.textContent = email;
-
                 step1.classList.remove('active');
                 step1.classList.add('hidden');
                 step2.classList.remove('hidden');
@@ -138,16 +131,11 @@
             }
         });
 
-        // ============================================
-        // Step 2: Verify OTP
-        // ============================================
         otpForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             step2Error.textContent = '';
-
             const otp = document.getElementById('otp').value.trim();
 
-            // Disable button
             verifyBtn.disabled = true;
             verifyBtn.textContent = 'Verifying...';
 
@@ -157,17 +145,15 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: userEmail, otp }),
                 });
-
                 const data = await response.json();
 
                 if (!response.ok) {
-                    step2Error.textContent = data.message || 'Verification failed.';
+                    step2Error.textContent = data.message;
                     verifyBtn.disabled = false;
                     verifyBtn.textContent = 'Verify & Create Account';
                     return;
                 }
 
-                // Success!
                 alert('Account Verified! Your account has been created successfully.');
                 window.location.href = '../signin/signin.html';
             } catch (err) {
@@ -177,10 +163,7 @@
             }
         });
 
-        // ============================================
-        // Back Button: Return to Step 1
-        // ============================================
-        backToStep1Btn.addEventListener('click', () => {
+        document.getElementById('backToStep1').addEventListener('click', () => {
             step2.classList.remove('active');
             step2.classList.add('hidden');
             step1.classList.remove('hidden');
