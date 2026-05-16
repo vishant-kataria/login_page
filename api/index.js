@@ -1,12 +1,14 @@
 const express = require('express');
 const cors = require('cors');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const path = require('path');
 const sgMail = require('@sendgrid/mail');
+const { OAuth2Client } = require('google-auth-library');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = require('./db');
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 const app = express();
 app.use(cors());
@@ -381,6 +383,83 @@ app.post('/api/signin/reset-password', async (req, res) => {
   } catch (error) {
     console.error('Reset Password Error:', error.message);
     res.status(500).json({ message: 'Server error during password reset.' });
+  }
+});
+
+// ============================================
+// POST /api/auth/google
+// Google OAuth: Verify token and sign in/up
+// ============================================
+app.post('/api/auth/google', async (req, res) => {
+  const { credential } = req.body;
+
+  if (!credential) {
+    return res.status(400).json({ message: 'Google credential is required.' });
+  }
+
+  try {
+    // Verify the Google ID token
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { sub: googleId, email, name, picture } = payload;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Could not retrieve email from Google.' });
+    }
+
+    // Check if user already exists by email
+    const existingUser = await pool.query(
+      'SELECT id, username, email, google_id, is_verified FROM users WHERE email = $1',
+      [email]
+    );
+
+    let user;
+
+    if (existingUser.rows.length > 0) {
+      // User exists — link Google ID if not already linked, and ensure verified
+      user = existingUser.rows[0];
+      if (!user.google_id) {
+        await pool.query(
+          'UPDATE users SET google_id = $1, is_verified = TRUE WHERE email = $2',
+          [googleId, email]
+        );
+      } else if (!user.is_verified) {
+        await pool.query(
+          'UPDATE users SET is_verified = TRUE WHERE email = $1',
+          [email]
+        );
+      }
+    } else {
+      // New user — create account automatically (no password, no OTP needed)
+      const username = email.split('@')[0] + '_' + Math.floor(Math.random() * 1000);
+      const fullName = name || email.split('@')[0];
+
+      const insertResult = await pool.query(
+        `INSERT INTO users (username, full_name, email, google_id, is_verified)
+         VALUES ($1, $2, $3, $4, TRUE)
+         RETURNING id, username, email`,
+        [username, fullName, email, googleId]
+      );
+      user = insertResult.rows[0];
+    }
+
+    // Fetch the final user data
+    const finalUser = await pool.query(
+      'SELECT id, username, email FROM users WHERE email = $1',
+      [email]
+    );
+
+    res.status(200).json({
+      message: 'Google sign-in successful!',
+      user: finalUser.rows[0],
+    });
+  } catch (error) {
+    console.error('Google Auth Error:', error.message);
+    res.status(500).json({ message: 'Google authentication failed. Please try again.' });
   }
 });
 

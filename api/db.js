@@ -31,7 +31,17 @@ const initDb = async () => {
       { name: 'signin_otp_expires_at', type: 'TIMESTAMP NULL' },
       { name: 'reset_otp', type: 'VARCHAR(6) NULL' },
       { name: 'reset_otp_expires_at', type: 'TIMESTAMP NULL' },
+      { name: 'google_id', type: 'VARCHAR(255) UNIQUE NULL' },
     ];
+
+    // Make password_hash nullable for Google OAuth users (who don't have passwords)
+    await pool.query(`
+      DO $$ BEGIN
+        ALTER TABLE users ALTER COLUMN password_hash DROP NOT NULL;
+      EXCEPTION
+        WHEN others THEN NULL;
+      END $$;
+    `);
 
     for (const col of newColumns) {
       await pool.query(`

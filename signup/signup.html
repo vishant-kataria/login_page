@@ -6,6 +6,7 @@
     <meta name="description" content="Create a new account">
     <title>Sign Up | Auth Project</title>
     <link rel="stylesheet" href="../style.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <!-- Aurora Background -->
@@ -51,6 +52,27 @@
                 <p id="step1-error" class="error-msg"></p>
                 <button type="submit" id="signupBtn" class="btn btn-primary btn-block">Create an account</button>
             </form>
+
+            <!-- Divider -->
+            <div class="divider"><span>or</span></div>
+
+            <!-- Google Sign Up Button -->
+            <div id="g_id_onload"
+                 data-client_id="680572175735-va61mifjbog3m6a61nb1lti41gp1frsn.apps.googleusercontent.com"
+                 data-context="signup"
+                 data-ux_mode="popup"
+                 data-callback="handleGoogleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="continue_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="350">
+            </div>
         </div>
 
         <!-- Step 2: OTP Verification -->
@@ -175,6 +197,34 @@
             signupBtn.disabled = false;
             signupBtn.textContent = 'Create an account';
         });
+    </script>
+
+    <!-- Google Auth Callback -->
+    <script>
+        async function handleGoogleCredentialResponse(response) {
+            try {
+                const res = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    document.getElementById('step1-error').textContent = data.message || 'Google sign-up failed.';
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify({
+                    username: data.user.username,
+                    email: data.user.email
+                }));
+                alert('Account created with Google! Welcome.');
+                window.location.href = '../landing.html';
+            } catch (err) {
+                document.getElementById('step1-error').textContent = 'Network error during Google sign-up.';
+            }
+        }
     </script>
 </body>
 </html>

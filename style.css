@@ -40,7 +40,8 @@ body {
     background-color: var(--bg);
     color: var(--text-primary);
     padding: 2rem;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     position: relative;
 }
 
@@ -416,3 +417,33 @@ body {
         border-radius: 16px;
     }
 }
+
+/* === Or Divider === */
+.divider {
+    display: flex;
+    align-items: center;
+    margin: 1.25rem 0;
+    gap: 1rem;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--input-border);
+}
+
+.divider span {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: lowercase;
+}
+
+/* === Google Sign-In Button Container === */
+.g_id_signin {
+    display: flex;
+    justify-content: center;
+}
+

@@ -7,6 +7,7 @@
     <title>Sign In | Auth Project</title>
     <link rel="stylesheet" href="../style.css">
     <link rel="stylesheet" href="signin.css">
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
     <!-- Aurora Background -->
@@ -43,6 +44,28 @@
                 <p id="credentials-error" class="error-msg"></p>
                 <button type="submit" id="signinBtn" class="btn btn-primary btn-block">Sign In</button>
             </form>
+
+            <!-- Divider -->
+            <div class="divider"><span>or</span></div>
+
+            <!-- Google Sign In Button -->
+            <div id="g_id_onload"
+                 data-client_id="680572175735-va61mifjbog3m6a61nb1lti41gp1frsn.apps.googleusercontent.com"
+                 data-context="signin"
+                 data-ux_mode="popup"
+                 data-callback="handleGoogleCredentialResponse"
+                 data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="filled_black"
+                 data-text="continue_with"
+                 data-size="large"
+                 data-logo_alignment="left"
+                 data-width="350">
+            </div>
+
             <p class="form-footer">Don't have an account? <a href="../signup/signup.html" class="form-link">Sign Up</a></p>
         </div>
 
@@ -142,6 +165,32 @@
         </div>
     </div>
 
+    <!-- Google Auth Callback (must be global, outside the IIFE) -->
+    <script>
+        async function handleGoogleCredentialResponse(response) {
+            try {
+                const res = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ credential: response.credential }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    document.getElementById('credentials-error').textContent = data.message || 'Google sign-in failed.';
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify({
+                    username: data.user.username,
+                    email: data.user.email
+                }));
+                window.location.href = '../landing.html';
+            } catch (err) {
+                document.getElementById('credentials-error').textContent = 'Network error during Google sign-in.';
+            }
+        }
+    </script>
     <script src="signin.js"></script>
 </body>
 </html>
