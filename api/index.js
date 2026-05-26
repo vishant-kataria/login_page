@@ -57,7 +57,7 @@ app.post('/api/signup', async (req, res) => {
 
     await sgMail.send({
       to: email,
-      from: 'vishantkataria2000@gmail.com',
+      from: 'auth@vishant.xyz',
       subject: 'Your Sign Up Verification Code',
       text: `Your verification code is: ${otp}\nThis code will expire in 10 minutes.`,
       html: `
@@ -207,7 +207,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
     if (method === 'email') {
       const msg = {
         to: email,
-        from: 'vishantkataria2000@gmail.com',
+        from: 'auth@vishant.xyz',
         subject: 'Your Sign In Verification Code',
         text: `Your sign-in verification code is: ${otp}\n\nThis code will expire in 10 minutes.`,
         html: `
@@ -312,7 +312,7 @@ app.post('/api/signin/forgot-password', async (req, res) => {
 
     const msg = {
       to: email,
-      from: 'vishantkataria2000@gmail.com',
+      from: 'auth@vishant.xyz',
       subject: 'Password Reset Code',
       text: `Your password reset code is: ${otp}\n\nThis code will expire in 10 minutes.`,
       html: `
