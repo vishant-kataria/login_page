@@ -8,6 +8,55 @@
     <link rel="icon" href="../fevicone_new_best.png" type="image/png">
     <link rel="stylesheet" href="../style.css">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        /* Signup OTP digit boxes — inline to avoid caching issues */
+        #email-otp-digits,
+        #phone-otp-digits {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+        }
+
+        #email-otp-digits .otp-digit,
+        #phone-otp-digits .otp-digit {
+            width: 46px !important;
+            height: 54px !important;
+            min-width: 46px;
+            max-width: 46px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            background: #1c1c1e;
+            color: #ffffff;
+            padding: 0;
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+
+        #email-otp-digits .otp-digit:focus,
+        #phone-otp-digits .otp-digit:focus {
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+
+        #email-otp-digits .otp-digit.filled,
+        #phone-otp-digits .otp-digit.filled {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        #email-otp-digits .otp-digit:disabled,
+        #phone-otp-digits .otp-digit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
     <!-- Aurora Background -->
