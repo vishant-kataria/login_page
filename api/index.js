@@ -364,7 +364,7 @@ app.post('/api/signin', async (req, res) => {
 // ============================================
 app.post('/api/signin/send-otp', async (req, res) => {
   const { email } = req.body;
-  const channel = (req.body.channel || '').trim().toLowerCase();
+  const channel = (req.body.channel || req.body.method || '').trim().toLowerCase();
 
   console.log('send-otp called — email:', email, '| channel:', JSON.stringify(channel), '| full body:', JSON.stringify(req.body));
 
@@ -430,7 +430,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
 // ============================================
 app.post('/api/signin/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
-  const channel = (req.body.channel || '').trim().toLowerCase();
+  const channel = (req.body.channel || req.body.method || '').trim().toLowerCase();
 
   console.log('verify-otp called — email:', email, '| otp:', otp, '| channel:', JSON.stringify(channel));
 
@@ -528,7 +528,7 @@ app.post('/api/signin/forgot-password/lookup', async (req, res) => {
 // ============================================
 app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
   const { email } = req.body;
-  const channel = (req.body.channel || '').trim().toLowerCase();
+  const channel = (req.body.channel || req.body.method || '').trim().toLowerCase();
 
   console.log('forgot-password send-otp — email:', email, '| channel:', JSON.stringify(channel));
 
@@ -594,7 +594,7 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
 // ============================================
 app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
   const { email, otp, newPassword } = req.body;
-  const channel = (req.body.channel || '').trim().toLowerCase();
+  const channel = (req.body.channel || req.body.method || '').trim().toLowerCase();
 
   if (!email || !otp || !channel || !newPassword) {
     return res.status(400).json({ message: 'All fields are required.' });
