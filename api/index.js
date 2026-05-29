@@ -364,12 +364,12 @@ app.post('/api/signin', async (req, res) => {
 // ============================================
 app.post('/api/signin/send-otp', async (req, res) => {
   const { email } = req.body;
-  const method = (req.body.method || '').trim().toLowerCase();
+  const channel = (req.body.channel || '').trim().toLowerCase();
 
-  console.log('send-otp called — email:', email, '| method:', JSON.stringify(method));
+  console.log('send-otp called — email:', email, '| channel:', JSON.stringify(channel), '| full body:', JSON.stringify(req.body));
 
-  if (!email || !method) {
-    return res.status(400).json({ message: 'Email and method are required.' });
+  if (!email || !channel) {
+    return res.status(400).json({ message: 'Email and channel are required.' });
   }
 
   try {
@@ -386,7 +386,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
     const otp = generateOtp();
     const expiresAt = otpExpiry(10);
 
-    if (method === 'email') {
+    if (channel === 'email') {
       await pool.query(
         'UPDATE users SET signin_otp = $1, signin_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
@@ -399,7 +399,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
       }
       console.log('Sign-in email OTP sent to:', email);
       res.status(200).json({ message: 'OTP sent to your email.' });
-    } else if (method === 'phone') {
+    } else if (channel === 'phone') {
       if (!user.phone_number) {
         return res.status(400).json({ message: 'No phone number associated with this account.' });
       }
@@ -416,7 +416,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
       console.log('Sign-in phone OTP sent to:', user.phone_number);
       res.status(200).json({ message: 'OTP sent to your phone.' });
     } else {
-      return res.status(400).json({ message: 'Invalid method. Use "email" or "phone".' });
+      return res.status(400).json({ message: 'Invalid channel. Use "email" or "phone".' });
     }
   } catch (error) {
     console.error('Send Sign-In OTP Error:', error.message);
@@ -430,12 +430,12 @@ app.post('/api/signin/send-otp', async (req, res) => {
 // ============================================
 app.post('/api/signin/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
-  const method = (req.body.method || '').trim().toLowerCase();
+  const channel = (req.body.channel || '').trim().toLowerCase();
 
-  console.log('verify-otp called — email:', email, '| otp:', otp, '| method:', JSON.stringify(method));
+  console.log('verify-otp called — email:', email, '| otp:', otp, '| channel:', JSON.stringify(channel));
 
-  if (!email || !otp || !method) {
-    return res.status(400).json({ message: 'Email, OTP, and method are required.' });
+  if (!email || !otp || !channel) {
+    return res.status(400).json({ message: 'Email, OTP, and channel are required.' });
   }
 
   try {
@@ -450,7 +450,7 @@ app.post('/api/signin/verify-otp', async (req, res) => {
 
     const user = result.rows[0];
 
-    if (method === 'email') {
+    if (channel === 'email') {
       if (new Date() > new Date(user.signin_otp_expires_at)) {
         return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
       }
@@ -461,7 +461,7 @@ app.post('/api/signin/verify-otp', async (req, res) => {
         'UPDATE users SET signin_otp = NULL, signin_otp_expires_at = NULL WHERE email = $1',
         [email]
       );
-    } else if (method === 'phone') {
+    } else if (channel === 'phone') {
       if (new Date() > new Date(user.signin_phone_otp_expires_at)) {
         return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
       }
@@ -473,7 +473,7 @@ app.post('/api/signin/verify-otp', async (req, res) => {
         [email]
       );
     } else {
-      return res.status(400).json({ message: 'Invalid method.' });
+      return res.status(400).json({ message: 'Invalid channel.' });
     }
 
     res.status(200).json({
@@ -528,12 +528,12 @@ app.post('/api/signin/forgot-password/lookup', async (req, res) => {
 // ============================================
 app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
   const { email } = req.body;
-  const method = (req.body.method || '').trim().toLowerCase();
+  const channel = (req.body.channel || '').trim().toLowerCase();
 
-  console.log('forgot-password send-otp — email:', email, '| method:', JSON.stringify(method));
+  console.log('forgot-password send-otp — email:', email, '| channel:', JSON.stringify(channel));
 
-  if (!email || !method) {
-    return res.status(400).json({ message: 'Email and method are required.' });
+  if (!email || !channel) {
+    return res.status(400).json({ message: 'Email and channel are required.' });
   }
 
   try {
@@ -550,7 +550,7 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
     const otp = generateOtp();
     const expiresAt = otpExpiry(10);
 
-    if (method === 'email') {
+    if (channel === 'email') {
       await pool.query(
         'UPDATE users SET reset_otp = $1, reset_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
@@ -563,7 +563,7 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
       }
       console.log('Password reset email OTP sent to:', email);
       res.status(200).json({ message: 'Reset code sent to your email.' });
-    } else if (method === 'phone') {
+    } else if (channel === 'phone') {
       if (!user.phone_number) {
         return res.status(400).json({ message: 'No phone number associated with this account.' });
       }
@@ -594,9 +594,9 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
 // ============================================
 app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
   const { email, otp, newPassword } = req.body;
-  const method = (req.body.method || '').trim().toLowerCase();
+  const channel = (req.body.channel || '').trim().toLowerCase();
 
-  if (!email || !otp || !method || !newPassword) {
+  if (!email || !otp || !channel || !newPassword) {
     return res.status(400).json({ message: 'All fields are required.' });
   }
 
@@ -616,14 +616,14 @@ app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
 
     const user = result.rows[0];
 
-    if (method === 'email') {
+    if (channel === 'email') {
       if (new Date() > new Date(user.reset_otp_expires_at)) {
         return res.status(400).json({ message: 'Reset code has expired. Please request a new one.' });
       }
       if (user.reset_otp !== otp) {
         return res.status(400).json({ message: 'Invalid reset code.' });
       }
-    } else if (method === 'phone') {
+    } else if (channel === 'phone') {
       if (new Date() > new Date(user.reset_phone_otp_expires_at)) {
         return res.status(400).json({ message: 'Reset code has expired. Please request a new one.' });
       }
@@ -631,7 +631,7 @@ app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
         return res.status(400).json({ message: 'Invalid reset code.' });
       }
     } else {
-      return res.status(400).json({ message: 'Invalid method.' });
+      return res.status(400).json({ message: 'Invalid channel.' });
     }
 
     const newHash = await bcrypt.hash(newPassword, 10);

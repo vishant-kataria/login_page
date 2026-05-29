@@ -225,7 +225,7 @@
             const response = await fetch('/api/signin/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, method }),
+                body: JSON.stringify({ email: userEmail, channel: method }),
             });
 
             const data = await response.json();
@@ -268,7 +268,7 @@
             const response = await fetch('/api/signin/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, otp, method: otpMethod }),
+                body: JSON.stringify({ email: userEmail, otp, channel: otpMethod }),
             });
 
             const data = await response.json();
@@ -375,7 +375,7 @@
             const response = await fetch('/api/signin/forgot-password/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, method }),
+                body: JSON.stringify({ email: userEmail, channel: method }),
             });
 
             const data = await response.json();
@@ -423,7 +423,7 @@
             const response = await fetch('/api/signin/forgot-password/verify-and-reset', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, otp, method: forgotResetMethod, newPassword }),
+                body: JSON.stringify({ email: userEmail, otp, channel: forgotResetMethod, newPassword }),
             });
 
             const data = await response.json();
