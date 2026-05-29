@@ -36,6 +36,28 @@ function otpExpiry(minutes = 10) {
   return new Date(Date.now() + minutes * 60 * 1000);
 }
 
+function formatPhoneNumber(phone) {
+  if (!phone) return phone;
+  // Strip all non-numeric characters except +
+  let cleaned = phone.replace(/[^\d+]/g, '');
+  if (cleaned.startsWith('+')) {
+    return cleaned;
+  }
+  // If it's a 10-digit number, prepend +91 (India) as a safe fallback
+  if (cleaned.length === 10) {
+    return '+91' + cleaned;
+  }
+  // If it starts with 91 and has 12 digits, prepend +
+  if (cleaned.length === 12 && cleaned.startsWith('91')) {
+    return '+' + cleaned;
+  }
+  // If it has 11 digits and starts with 0 (e.g. 09350332515), strip 0 and prepend +91
+  if (cleaned.length === 11 && cleaned.startsWith('0')) {
+    return '+91' + cleaned.slice(1);
+  }
+  return '+' + cleaned;
+}
+
 async function sendEmailOtp(toEmail, otp, subject, headingText) {
   await sgMail.send({
     to: toEmail,
@@ -86,6 +108,8 @@ app.post('/api/signup', async (req, res) => {
     return res.status(400).json({ message: 'All fields including phone number are required.' });
   }
 
+  const formattedPhone = formatPhoneNumber(phoneNumber);
+
   try {
     // Check verified conflicts
     const existingEmail = await pool.query('SELECT id, is_verified FROM users WHERE email = $1', [email]);
@@ -98,7 +122,7 @@ app.post('/api/signup', async (req, res) => {
       return res.status(400).json({ message: 'This username is already taken.' });
     }
 
-    const existingPhone = await pool.query('SELECT id, is_verified FROM users WHERE phone_number = $1', [phoneNumber]);
+    const existingPhone = await pool.query('SELECT id, is_verified FROM users WHERE phone_number = $1', [formattedPhone]);
     if (existingPhone.rows.length > 0 && existingPhone.rows[0].is_verified === true) {
       return res.status(400).json({ message: 'An account with this phone number already exists.' });
     }
@@ -118,14 +142,14 @@ app.post('/api/signup', async (req, res) => {
          otp = $6, otp_expires_at = $7,
          phone_otp = $8, phone_otp_expires_at = $9,
          is_email_verified = FALSE, is_phone_verified = FALSE, is_verified = FALSE`,
-      [username, fullName, email, phoneNumber, passwordHash, emailOtp, otpExpiresAt, phoneOtp, otpExpiresAt]
+      [username, fullName, email, formattedPhone, passwordHash, emailOtp, otpExpiresAt, phoneOtp, otpExpiresAt]
     );
 
     // Send email OTP
     await sendEmailOtp(email, emailOtp, 'Your Sign Up Email Verification Code', 'Verify Your Email');
 
     // Send phone OTP via Twilio
-    await sendSmsOtp(phoneNumber, phoneOtp, 'Your verification code');
+    await sendSmsOtp(formattedPhone, phoneOtp, 'Your verification code');
 
     console.log('Signup OTPs sent — Email:', email, '| Phone:', phoneNumber);
     res.status(200).json({ message: 'OTPs sent successfully. Please verify both your email and phone.' });

@@ -27,11 +27,20 @@ const initDb = async () => {
     // Add sign-in specific columns (safe to run on existing tables)
     const newColumns = [
       { name: 'phone', type: 'VARCHAR(15) NULL' },
+      { name: 'phone_number', type: 'VARCHAR(50) UNIQUE NULL' },
+      { name: 'is_email_verified', type: 'BOOLEAN DEFAULT FALSE' },
+      { name: 'phone_otp', type: 'VARCHAR(6) NULL' },
+      { name: 'phone_otp_expires_at', type: 'TIMESTAMP NULL' },
+      { name: 'is_phone_verified', type: 'BOOLEAN DEFAULT FALSE' },
       { name: 'signin_otp', type: 'VARCHAR(6) NULL' },
       { name: 'signin_otp_expires_at', type: 'TIMESTAMP NULL' },
+      { name: 'signin_phone_otp', type: 'VARCHAR(6) NULL' },
+      { name: 'signin_phone_otp_expires_at', type: 'TIMESTAMP NULL' },
       { name: 'reset_otp', type: 'VARCHAR(6) NULL' },
       { name: 'reset_otp_expires_at', type: 'TIMESTAMP NULL' },
-      { name: 'google_id', type: 'VARCHAR(255) UNIQUE NULL' },
+      { name: 'reset_phone_otp', type: 'VARCHAR(6) NULL' },
+      { name: 'reset_phone_otp_expires_at', type: 'TIMESTAMP NULL' },
+      { name: 'google_id', type: 'VARCHAR(255) NULL' },
     ];
 
     // Make password_hash nullable for Google OAuth users (who don't have passwords)
