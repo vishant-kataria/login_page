@@ -85,52 +85,62 @@
             <h2>Verify Your Account</h2>
             <p class="subtitle">Enter the codes sent to your email and phone number.</p>
 
-            <!-- Email OTP Box -->
-            <div class="otp-verify-box" id="email-otp-box">
-                <div class="otp-verify-header">
-                    <div class="otp-verify-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Email OTP Card -->
+            <div class="otp-verify-card" id="email-otp-card">
+                <div class="otp-verify-card-header">
+                    <div class="otp-verify-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
                         </svg>
                     </div>
-                    <div>
-                        <span class="otp-verify-label">Email Code</span>
-                        <span id="display-email" class="otp-verify-dest"></span>
+                    <div class="otp-verify-card-info">
+                        <span class="otp-verify-card-title">Email Verification</span>
+                        <span id="display-email" class="otp-verify-card-dest"></span>
                     </div>
                     <div id="email-verified-badge" class="verified-badge hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         Verified
                     </div>
                 </div>
-                <div class="otp-verify-row">
-                    <input type="text" id="email-otp-input" class="otp-inline-input" maxlength="6" pattern="\d{6}" placeholder="6-digit code" inputmode="numeric">
-                    <button type="button" id="verifyEmailBtn" class="btn-verify">Verify Email</button>
+                <div class="otp-digit-group" id="email-otp-digits">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="0">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="1">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="2">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="3">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="4">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="5">
                 </div>
                 <p id="email-otp-error" class="error-msg"></p>
+                <button type="button" id="verifyEmailBtn" class="btn btn-primary btn-block btn-verify-otp">Verify Email</button>
             </div>
 
-            <!-- Phone OTP Box -->
-            <div class="otp-verify-box" id="phone-otp-box">
-                <div class="otp-verify-header">
-                    <div class="otp-verify-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Phone OTP Card -->
+            <div class="otp-verify-card" id="phone-otp-card">
+                <div class="otp-verify-card-header">
+                    <div class="otp-verify-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
                         </svg>
                     </div>
-                    <div>
-                        <span class="otp-verify-label">Phone Code</span>
-                        <span id="display-phone" class="otp-verify-dest"></span>
+                    <div class="otp-verify-card-info">
+                        <span class="otp-verify-card-title">Phone Verification</span>
+                        <span id="display-phone" class="otp-verify-card-dest"></span>
                     </div>
                     <div id="phone-verified-badge" class="verified-badge hidden">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         Verified
                     </div>
                 </div>
-                <div class="otp-verify-row">
-                    <input type="text" id="phone-otp-input" class="otp-inline-input" maxlength="6" pattern="\d{6}" placeholder="6-digit code" inputmode="numeric">
-                    <button type="button" id="verifyPhoneBtn" class="btn-verify">Verify Phone</button>
+                <div class="otp-digit-group" id="phone-otp-digits">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="0">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="1">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="2">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="3">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="4">
+                    <input type="text" class="otp-digit signup-otp-digit" maxlength="1" pattern="\d" inputmode="numeric" data-index="5">
                 </div>
                 <p id="phone-otp-error" class="error-msg"></p>
+                <button type="button" id="verifyPhoneBtn" class="btn btn-primary btn-block btn-verify-otp">Verify Phone</button>
             </div>
 
             <p id="step2-error" class="error-msg"></p>
@@ -155,6 +165,65 @@
         let userEmail = '';
         let isEmailVerified = false;
         let isPhoneVerified = false;
+
+        // --- OTP Digit Input Handling (reusable for both groups) ---
+        function setupOtpDigitGroup(containerId) {
+            const container = document.getElementById(containerId);
+            const digits = container.querySelectorAll('.otp-digit');
+
+            digits.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    const value = e.target.value;
+                    e.target.value = value.replace(/\D/g, '');
+                    if (e.target.value && index < digits.length - 1) {
+                        digits[index + 1].focus();
+                    }
+                    e.target.classList.toggle('filled', !!e.target.value);
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && !input.value && index > 0) {
+                        digits[index - 1].focus();
+                        digits[index - 1].value = '';
+                        digits[index - 1].classList.remove('filled');
+                    }
+                });
+
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '');
+                    for (let i = 0; i < digits.length; i++) {
+                        digits[i].value = pasted[i] || '';
+                        digits[i].classList.toggle('filled', !!digits[i].value);
+                    }
+                    const focusIndex = Math.min(pasted.length, digits.length - 1);
+                    digits[focusIndex].focus();
+                });
+            });
+        }
+
+        function getDigitGroupValue(containerId) {
+            const digits = document.getElementById(containerId).querySelectorAll('.otp-digit');
+            return Array.from(digits).map(d => d.value).join('');
+        }
+
+        function clearDigitGroup(containerId) {
+            const digits = document.getElementById(containerId).querySelectorAll('.otp-digit');
+            digits.forEach(d => {
+                d.value = '';
+                d.classList.remove('filled');
+                d.disabled = false;
+            });
+        }
+
+        function disableDigitGroup(containerId) {
+            const digits = document.getElementById(containerId).querySelectorAll('.otp-digit');
+            digits.forEach(d => { d.disabled = true; });
+        }
+
+        // Initialize both OTP digit groups
+        setupOtpDigitGroup('email-otp-digits');
+        setupOtpDigitGroup('phone-otp-digits');
 
         function checkBothVerified() {
             if (isEmailVerified && isPhoneVerified) {
@@ -210,6 +279,9 @@
                 step1.classList.add('hidden');
                 step2.classList.remove('hidden');
                 step2.classList.add('active');
+
+                // Focus the first email OTP digit
+                document.getElementById('email-otp-digits').querySelector('.otp-digit').focus();
             } catch (err) {
                 step1Error.textContent = 'Network error. Please try again.';
                 signupBtn.disabled = false;
@@ -220,7 +292,7 @@
         // Verify Email OTP
         verifyEmailBtn.addEventListener('click', async () => {
             emailOtpError.textContent = '';
-            const otp = document.getElementById('email-otp-input').value.trim();
+            const otp = getDigitGroupValue('email-otp-digits');
 
             if (!otp || otp.length !== 6) {
                 emailOtpError.textContent = 'Please enter the 6-digit email code.';
@@ -246,11 +318,12 @@
                 }
 
                 isEmailVerified = true;
-                document.getElementById('email-otp-box').classList.add('verified');
+                document.getElementById('email-otp-card').classList.add('verified');
                 document.getElementById('email-verified-badge').classList.remove('hidden');
-                document.getElementById('email-otp-input').disabled = true;
+                disableDigitGroup('email-otp-digits');
                 verifyEmailBtn.disabled = true;
-                verifyEmailBtn.textContent = '✓ Done';
+                verifyEmailBtn.textContent = '✓ Verified';
+                verifyEmailBtn.classList.add('btn-verified');
                 checkBothVerified();
             } catch (err) {
                 emailOtpError.textContent = 'Network error. Please try again.';
@@ -262,7 +335,7 @@
         // Verify Phone OTP
         verifyPhoneBtn.addEventListener('click', async () => {
             phoneOtpError.textContent = '';
-            const otp = document.getElementById('phone-otp-input').value.trim();
+            const otp = getDigitGroupValue('phone-otp-digits');
 
             if (!otp || otp.length !== 6) {
                 phoneOtpError.textContent = 'Please enter the 6-digit phone code.';
@@ -288,11 +361,12 @@
                 }
 
                 isPhoneVerified = true;
-                document.getElementById('phone-otp-box').classList.add('verified');
+                document.getElementById('phone-otp-card').classList.add('verified');
                 document.getElementById('phone-verified-badge').classList.remove('hidden');
-                document.getElementById('phone-otp-input').disabled = true;
+                disableDigitGroup('phone-otp-digits');
                 verifyPhoneBtn.disabled = true;
-                verifyPhoneBtn.textContent = '✓ Done';
+                verifyPhoneBtn.textContent = '✓ Verified';
+                verifyPhoneBtn.classList.add('btn-verified');
                 checkBothVerified();
             } catch (err) {
                 phoneOtpError.textContent = 'Network error. Please try again.';
@@ -347,18 +421,18 @@
             isPhoneVerified = false;
             createAccountBtn.disabled = true;
             createAccountBtn.classList.remove('ready');
-            document.getElementById('email-otp-input').disabled = false;
-            document.getElementById('phone-otp-input').disabled = false;
-            document.getElementById('email-otp-input').value = '';
-            document.getElementById('phone-otp-input').value = '';
+            clearDigitGroup('email-otp-digits');
+            clearDigitGroup('phone-otp-digits');
             document.getElementById('email-verified-badge').classList.add('hidden');
             document.getElementById('phone-verified-badge').classList.add('hidden');
-            document.getElementById('email-otp-box').classList.remove('verified');
-            document.getElementById('phone-otp-box').classList.remove('verified');
+            document.getElementById('email-otp-card').classList.remove('verified');
+            document.getElementById('phone-otp-card').classList.remove('verified');
             verifyEmailBtn.disabled = false;
             verifyEmailBtn.textContent = 'Verify Email';
+            verifyEmailBtn.classList.remove('btn-verified');
             verifyPhoneBtn.disabled = false;
             verifyPhoneBtn.textContent = 'Verify Phone';
+            verifyPhoneBtn.classList.remove('btn-verified');
             emailOtpError.textContent = '';
             phoneOtpError.textContent = '';
             step2Error.textContent = '';

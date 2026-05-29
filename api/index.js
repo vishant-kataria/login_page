@@ -353,7 +353,10 @@ app.post('/api/signin', async (req, res) => {
 // Sends sign-in OTP via email or phone
 // ============================================
 app.post('/api/signin/send-otp', async (req, res) => {
-  const { email, method } = req.body;
+  const { email } = req.body;
+  const method = (req.body.method || '').trim().toLowerCase();
+
+  console.log('send-otp called — email:', email, '| method:', JSON.stringify(method));
 
   if (!email || !method) {
     return res.status(400).json({ message: 'Email and method are required.' });
@@ -406,7 +409,10 @@ app.post('/api/signin/send-otp', async (req, res) => {
 // Verifies sign-in OTP (email or phone)
 // ============================================
 app.post('/api/signin/verify-otp', async (req, res) => {
-  const { email, otp, method } = req.body;
+  const { email, otp } = req.body;
+  const method = (req.body.method || '').trim().toLowerCase();
+
+  console.log('verify-otp called — email:', email, '| otp:', otp, '| method:', JSON.stringify(method));
 
   if (!email || !otp || !method) {
     return res.status(400).json({ message: 'Email, OTP, and method are required.' });
@@ -501,7 +507,10 @@ app.post('/api/signin/forgot-password/lookup', async (req, res) => {
 // Sends password reset OTP via email or phone
 // ============================================
 app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
-  const { email, method } = req.body;
+  const { email } = req.body;
+  const method = (req.body.method || '').trim().toLowerCase();
+
+  console.log('forgot-password send-otp — email:', email, '| method:', JSON.stringify(method));
 
   if (!email || !method) {
     return res.status(400).json({ message: 'Email and method are required.' });
@@ -554,7 +563,8 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
 // Verifies OTP and resets password
 // ============================================
 app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
-  const { email, otp, method, newPassword } = req.body;
+  const { email, otp, newPassword } = req.body;
+  const method = (req.body.method || '').trim().toLowerCase();
 
   if (!email || !otp || !method || !newPassword) {
     return res.status(400).json({ message: 'All fields are required.' });
