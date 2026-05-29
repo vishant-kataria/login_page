@@ -43,6 +43,10 @@
                     <input type="email" id="email" name="email" placeholder="you@example.com" required>
                 </div>
                 <div class="form-group">
+                    <label for="phoneNumber">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+91 9876543210" required>
+                </div>
+                <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Min 6 characters" minlength="6" required>
                 </div>
@@ -51,7 +55,7 @@
                     <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" minlength="6" required>
                 </div>
                 <p id="step1-error" class="error-msg"></p>
-                <button type="submit" id="signupBtn" class="btn btn-primary btn-block">Create an account</button>
+                <button type="submit" id="signupBtn" class="btn btn-primary btn-block">Continue</button>
             </form>
 
             <!-- Divider -->
@@ -76,34 +80,90 @@
             </div>
         </div>
 
-        <!-- Step 2: OTP Verification -->
+        <!-- Step 2: Dual OTP Verification -->
         <div id="step-2" class="form-step hidden">
-            <h2>Verify Email</h2>
-            <p class="subtitle">We sent a 6-digit code to <span id="display-email" class="highlight-email"></span></p>
-            <form id="otpForm">
-                <div class="form-group">
-                    <label for="otp">Enter OTP</label>
-                    <input type="text" id="otp" name="otp" maxlength="6" pattern="\d{6}" placeholder="123456" required>
+            <h2>Verify Your Account</h2>
+            <p class="subtitle">Enter the codes sent to your email and phone number.</p>
+
+            <!-- Email OTP Box -->
+            <div class="otp-verify-box" id="email-otp-box">
+                <div class="otp-verify-header">
+                    <div class="otp-verify-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="otp-verify-label">Email Code</span>
+                        <span id="display-email" class="otp-verify-dest"></span>
+                    </div>
+                    <div id="email-verified-badge" class="verified-badge hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Verified
+                    </div>
                 </div>
-                <p id="step2-error" class="error-msg"></p>
-                <button type="submit" id="verifyBtn" class="btn btn-primary btn-block">Verify & Create Account</button>
-                <button type="button" id="backToStep1" class="btn btn-secondary btn-block mt-1">Back</button>
-            </form>
+                <div class="otp-verify-row">
+                    <input type="text" id="email-otp-input" class="otp-inline-input" maxlength="6" pattern="\d{6}" placeholder="6-digit code" inputmode="numeric">
+                    <button type="button" id="verifyEmailBtn" class="btn-verify">Verify Email</button>
+                </div>
+                <p id="email-otp-error" class="error-msg"></p>
+            </div>
+
+            <!-- Phone OTP Box -->
+            <div class="otp-verify-box" id="phone-otp-box">
+                <div class="otp-verify-header">
+                    <div class="otp-verify-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="otp-verify-label">Phone Code</span>
+                        <span id="display-phone" class="otp-verify-dest"></span>
+                    </div>
+                    <div id="phone-verified-badge" class="verified-badge hidden">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Verified
+                    </div>
+                </div>
+                <div class="otp-verify-row">
+                    <input type="text" id="phone-otp-input" class="otp-inline-input" maxlength="6" pattern="\d{6}" placeholder="6-digit code" inputmode="numeric">
+                    <button type="button" id="verifyPhoneBtn" class="btn-verify">Verify Phone</button>
+                </div>
+                <p id="phone-otp-error" class="error-msg"></p>
+            </div>
+
+            <p id="step2-error" class="error-msg"></p>
+            <button type="button" id="createAccountBtn" class="btn btn-primary btn-block" disabled>Create Account</button>
+            <button type="button" id="backToStep1" class="btn btn-secondary btn-block mt-1">Back</button>
         </div>
     </div>
 
     <script>
         const signupForm = document.getElementById('signupForm');
-        const otpForm = document.getElementById('otpForm');
         const step1 = document.getElementById('step-1');
         const step2 = document.getElementById('step-2');
         const step1Error = document.getElementById('step1-error');
         const step2Error = document.getElementById('step2-error');
         const signupBtn = document.getElementById('signupBtn');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const displayEmail = document.getElementById('display-email');
-        let userEmail = '';
+        const verifyEmailBtn = document.getElementById('verifyEmailBtn');
+        const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
+        const createAccountBtn = document.getElementById('createAccountBtn');
+        const emailOtpError = document.getElementById('email-otp-error');
+        const phoneOtpError = document.getElementById('phone-otp-error');
 
+        let userEmail = '';
+        let isEmailVerified = false;
+        let isPhoneVerified = false;
+
+        function checkBothVerified() {
+            if (isEmailVerified && isPhoneVerified) {
+                createAccountBtn.disabled = false;
+                createAccountBtn.classList.add('ready');
+            }
+        }
+
+        // Step 1: Submit signup form
         signupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             step1Error.textContent = '';
@@ -111,6 +171,7 @@
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -124,25 +185,27 @@
             }
 
             signupBtn.disabled = true;
-            signupBtn.textContent = 'Sending OTP...';
+            signupBtn.textContent = 'Sending codes...';
 
             try {
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, fullName, email, password }),
+                    body: JSON.stringify({ username, fullName, email, password, phoneNumber }),
                 });
                 const data = await response.json();
 
                 if (!response.ok) {
                     step1Error.textContent = data.message;
                     signupBtn.disabled = false;
-                    signupBtn.textContent = 'Create an account';
+                    signupBtn.textContent = 'Continue';
                     return;
                 }
 
                 userEmail = email;
-                displayEmail.textContent = email;
+                document.getElementById('display-email').textContent = email;
+                document.getElementById('display-phone').textContent = phoneNumber;
+
                 step1.classList.remove('active');
                 step1.classList.add('hidden');
                 step2.classList.remove('hidden');
@@ -150,20 +213,25 @@
             } catch (err) {
                 step1Error.textContent = 'Network error. Please try again.';
                 signupBtn.disabled = false;
-                signupBtn.textContent = 'Create an account';
+                signupBtn.textContent = 'Continue';
             }
         });
 
-        otpForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            step2Error.textContent = '';
-            const otp = document.getElementById('otp').value.trim();
+        // Verify Email OTP
+        verifyEmailBtn.addEventListener('click', async () => {
+            emailOtpError.textContent = '';
+            const otp = document.getElementById('email-otp-input').value.trim();
 
-            verifyBtn.disabled = true;
-            verifyBtn.textContent = 'Verifying...';
+            if (!otp || otp.length !== 6) {
+                emailOtpError.textContent = 'Please enter the 6-digit email code.';
+                return;
+            }
+
+            verifyEmailBtn.disabled = true;
+            verifyEmailBtn.textContent = 'Verifying...';
 
             try {
-                const response = await fetch('/api/verify', {
+                const response = await fetch('/api/signup/verify-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: userEmail, otp }),
@@ -171,32 +239,129 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    step2Error.textContent = data.message;
-                    verifyBtn.disabled = false;
-                    verifyBtn.textContent = 'Verify & Create Account';
+                    emailOtpError.textContent = data.message;
+                    verifyEmailBtn.disabled = false;
+                    verifyEmailBtn.textContent = 'Verify Email';
                     return;
                 }
 
-                alert('Account Verified! Your account has been created successfully.');
-                localStorage.setItem('user', JSON.stringify({
-                    username: document.getElementById('username').value.trim(),
-                    email: userEmail
-                }));
-                window.location.href = '../landing.html';
+                isEmailVerified = true;
+                document.getElementById('email-otp-box').classList.add('verified');
+                document.getElementById('email-verified-badge').classList.remove('hidden');
+                document.getElementById('email-otp-input').disabled = true;
+                verifyEmailBtn.disabled = true;
+                verifyEmailBtn.textContent = '✓ Done';
+                checkBothVerified();
             } catch (err) {
-                step2Error.textContent = 'Network error. Please try again.';
-                verifyBtn.disabled = false;
-                verifyBtn.textContent = 'Verify & Create Account';
+                emailOtpError.textContent = 'Network error. Please try again.';
+                verifyEmailBtn.disabled = false;
+                verifyEmailBtn.textContent = 'Verify Email';
             }
         });
 
+        // Verify Phone OTP
+        verifyPhoneBtn.addEventListener('click', async () => {
+            phoneOtpError.textContent = '';
+            const otp = document.getElementById('phone-otp-input').value.trim();
+
+            if (!otp || otp.length !== 6) {
+                phoneOtpError.textContent = 'Please enter the 6-digit phone code.';
+                return;
+            }
+
+            verifyPhoneBtn.disabled = true;
+            verifyPhoneBtn.textContent = 'Verifying...';
+
+            try {
+                const response = await fetch('/api/signup/verify-phone', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail, otp }),
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    phoneOtpError.textContent = data.message;
+                    verifyPhoneBtn.disabled = false;
+                    verifyPhoneBtn.textContent = 'Verify Phone';
+                    return;
+                }
+
+                isPhoneVerified = true;
+                document.getElementById('phone-otp-box').classList.add('verified');
+                document.getElementById('phone-verified-badge').classList.remove('hidden');
+                document.getElementById('phone-otp-input').disabled = true;
+                verifyPhoneBtn.disabled = true;
+                verifyPhoneBtn.textContent = '✓ Done';
+                checkBothVerified();
+            } catch (err) {
+                phoneOtpError.textContent = 'Network error. Please try again.';
+                verifyPhoneBtn.disabled = false;
+                verifyPhoneBtn.textContent = 'Verify Phone';
+            }
+        });
+
+        // Create Account (both verified)
+        createAccountBtn.addEventListener('click', async () => {
+            step2Error.textContent = '';
+            createAccountBtn.disabled = true;
+            createAccountBtn.textContent = 'Creating account...';
+
+            try {
+                const response = await fetch('/api/signup/complete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: userEmail }),
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    step2Error.textContent = data.message;
+                    createAccountBtn.disabled = false;
+                    createAccountBtn.textContent = 'Create Account';
+                    return;
+                }
+
+                localStorage.setItem('user', JSON.stringify({
+                    username: data.user.username,
+                    email: data.user.email,
+                }));
+                alert('Account created successfully! Welcome aboard.');
+                window.location.href = '../landing.html';
+            } catch (err) {
+                step2Error.textContent = 'Network error. Please try again.';
+                createAccountBtn.disabled = false;
+                createAccountBtn.textContent = 'Create Account';
+            }
+        });
+
+        // Back to Step 1
         document.getElementById('backToStep1').addEventListener('click', () => {
             step2.classList.remove('active');
             step2.classList.add('hidden');
             step1.classList.remove('hidden');
             step1.classList.add('active');
             signupBtn.disabled = false;
-            signupBtn.textContent = 'Create an account';
+            signupBtn.textContent = 'Continue';
+            isEmailVerified = false;
+            isPhoneVerified = false;
+            createAccountBtn.disabled = true;
+            createAccountBtn.classList.remove('ready');
+            document.getElementById('email-otp-input').disabled = false;
+            document.getElementById('phone-otp-input').disabled = false;
+            document.getElementById('email-otp-input').value = '';
+            document.getElementById('phone-otp-input').value = '';
+            document.getElementById('email-verified-badge').classList.add('hidden');
+            document.getElementById('phone-verified-badge').classList.add('hidden');
+            document.getElementById('email-otp-box').classList.remove('verified');
+            document.getElementById('phone-otp-box').classList.remove('verified');
+            verifyEmailBtn.disabled = false;
+            verifyEmailBtn.textContent = 'Verify Email';
+            verifyPhoneBtn.disabled = false;
+            verifyPhoneBtn.textContent = 'Verify Phone';
+            emailOtpError.textContent = '';
+            phoneOtpError.textContent = '';
+            step2Error.textContent = '';
         });
     </script>
 

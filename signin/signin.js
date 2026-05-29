@@ -1,7 +1,7 @@
 // ============================================
 // Sign-in Page Logic
 // Multi-step flow: Credentials → OTP Method → OTP Verify
-// Plus: Forgot Email & Forgot Password flows
+// Forgot Password: Identifier → Method (email/phone) → OTP + Reset
 // ============================================
 
 (function () {
@@ -13,6 +13,7 @@
         otpMethod: document.getElementById('step-otp-method'),
         otpVerify: document.getElementById('step-otp-verify'),
         forgotPassword: document.getElementById('step-forgot-password'),
+        forgotMethod: document.getElementById('step-forgot-method'),
         resetPassword: document.getElementById('step-reset-password'),
     };
 
@@ -25,7 +26,7 @@
     // --- Buttons ---
     const signinBtn = document.getElementById('signinBtn');
     const verifyOtpBtn = document.getElementById('verifyOtpBtn');
-    const sendResetBtn = document.getElementById('sendResetBtn');
+    const findAccountBtn = document.getElementById('findAccountBtn');
     const resetPasswordBtn = document.getElementById('resetPasswordBtn');
     const resendOtpBtn = document.getElementById('resend-otp-btn');
 
@@ -34,6 +35,7 @@
     const otpMethodError = document.getElementById('otp-method-error');
     const otpVerifyError = document.getElementById('otp-verify-error');
     const forgotPasswordError = document.getElementById('forgot-password-error');
+    const forgotMethodError = document.getElementById('forgot-method-error');
     const resetPasswordError = document.getElementById('reset-password-error');
 
     // --- OTP Digit Inputs ---
@@ -41,7 +43,8 @@
 
     // --- State ---
     let userEmail = '';
-    let otpMethod = ''; // 'email' or 'sms'
+    let otpMethod = ''; // 'email' or 'phone'
+    let forgotResetMethod = ''; // 'email' or 'phone'
     let countdownInterval = null;
 
     // ============================================
@@ -85,19 +88,15 @@
     // OTP Individual Digit Input Handling
     // ============================================
     otpDigits.forEach((input, index) => {
-        // Auto-focus next input on typing
         input.addEventListener('input', (e) => {
             const value = e.target.value;
-            // Only allow digits
             e.target.value = value.replace(/\D/g, '');
             if (e.target.value && index < otpDigits.length - 1) {
                 otpDigits[index + 1].focus();
             }
-            // Add filled class for styling
             e.target.classList.toggle('filled', !!e.target.value);
         });
 
-        // Handle backspace to go to previous input
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !input.value && index > 0) {
                 otpDigits[index - 1].focus();
@@ -106,7 +105,6 @@
             }
         });
 
-        // Handle paste (distribute digits across inputs)
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '');
@@ -114,18 +112,15 @@
                 otpDigits[i].value = pasted[i] || '';
                 otpDigits[i].classList.toggle('filled', !!otpDigits[i].value);
             }
-            // Focus the last filled or next empty
             const focusIndex = Math.min(pasted.length, otpDigits.length - 1);
             otpDigits[focusIndex].focus();
         });
     });
 
-    // Get combined OTP value from individual inputs
     function getOtpValue() {
         return Array.from(otpDigits).map(d => d.value).join('');
     }
 
-    // Clear OTP inputs
     function clearOtpInputs() {
         otpDigits.forEach(d => {
             d.value = '';
@@ -193,7 +188,6 @@
             userEmail = data.email;
             document.getElementById('otp-masked-email').textContent = 'Send code to ' + maskEmail(data.email);
 
-            // Show or hide SMS option based on whether user has a phone number
             const smsBtn = document.getElementById('otp-sms-btn');
             if (data.maskedPhone) {
                 document.getElementById('otp-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
@@ -215,15 +209,15 @@
     // ============================================
     document.getElementById('otp-email-btn').addEventListener('click', () => {
         otpMethod = 'email';
-        sendOtp('email');
+        sendSigninOtp('email');
     });
 
     document.getElementById('otp-sms-btn').addEventListener('click', () => {
-        otpMethod = 'sms';
-        sendOtp('sms');
+        otpMethod = 'phone';
+        sendSigninOtp('phone');
     });
 
-    async function sendOtp(method) {
+    async function sendSigninOtp(method) {
         otpMethodError.textContent = '';
 
         try {
@@ -240,8 +234,9 @@
                 return;
             }
 
-            // Move to OTP entry step
-            const destination = method === 'email' ? maskEmail(userEmail) : (data.maskedPhone || 'your phone');
+            const destination = method === 'email'
+                ? maskEmail(userEmail)
+                : document.getElementById('otp-masked-phone').textContent.replace('Send code to ', '');
             document.getElementById('otp-destination').textContent = destination;
 
             clearOtpInputs();
@@ -272,7 +267,7 @@
             const response = await fetch('/api/signin/verify-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, otp }),
+                body: JSON.stringify({ email: userEmail, otp, method: otpMethod }),
             });
 
             const data = await response.json();
@@ -289,7 +284,6 @@
                 username: data.user.username,
                 email: data.user.email
             }));
-            alert('Sign-in successful! Welcome back.');
             window.location.href = '../landing.html';
         } catch (err) {
             otpVerifyError.textContent = 'Network error. Please try again.';
@@ -299,14 +293,15 @@
 
     // Resend OTP
     resendOtpBtn.addEventListener('click', () => {
-        sendOtp(otpMethod);
+        sendSigninOtp(otpMethod);
     });
 
     // ============================================
-    // Forgot Password Flow
+    // Forgot Password: Step 1 — Find Account
     // ============================================
     document.getElementById('forgot-password-link').addEventListener('click', (e) => {
         e.preventDefault();
+        forgotPasswordError.textContent = '';
         showStep('forgotPassword');
     });
 
@@ -314,42 +309,93 @@
         e.preventDefault();
         forgotPasswordError.textContent = '';
 
-        const email = document.getElementById('reset-email').value.trim();
-        if (!email) {
-            forgotPasswordError.textContent = 'Please enter your email.';
+        const identifier = document.getElementById('reset-identifier').value.trim();
+        if (!identifier) {
+            forgotPasswordError.textContent = 'Please enter your email or username.';
             return;
         }
 
-        setLoading(sendResetBtn, true);
+        setLoading(findAccountBtn, true);
 
         try {
-            const response = await fetch('/api/signin/forgot-password', {
+            const response = await fetch('/api/signin/forgot-password/lookup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ identifier }),
             });
 
             const data = await response.json();
 
             if (!response.ok) {
-                forgotPasswordError.textContent = data.message || 'Email not found.';
-                setLoading(sendResetBtn, false, 'Send Reset Code');
+                forgotPasswordError.textContent = data.message || 'Account not found.';
+                setLoading(findAccountBtn, false, 'Find Account');
                 return;
             }
 
-            // Move to reset password step
-            userEmail = email;
-            document.getElementById('reset-destination').textContent = maskEmail(email);
-            showStep('resetPassword');
-            setLoading(sendResetBtn, false, 'Send Reset Code');
+            // Store email for next steps
+            userEmail = data.email;
+
+            // Show method selection
+            document.getElementById('forgot-masked-email').textContent = 'Send code to ' + data.maskedEmail;
+            const forgotPhoneBtn = document.getElementById('forgot-phone-btn');
+            if (data.maskedPhone) {
+                document.getElementById('forgot-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
+                forgotPhoneBtn.classList.remove('hidden');
+            } else {
+                forgotPhoneBtn.classList.add('hidden');
+            }
+
+            showStep('forgotMethod');
+            setLoading(findAccountBtn, false, 'Find Account');
         } catch (err) {
             forgotPasswordError.textContent = 'Network error. Please try again.';
-            setLoading(sendResetBtn, false, 'Send Reset Code');
+            setLoading(findAccountBtn, false, 'Find Account');
         }
     });
 
     // ============================================
-    // Reset Password Submission
+    // Forgot Password: Step 2 — Choose method
+    // ============================================
+    document.getElementById('forgot-email-btn').addEventListener('click', () => {
+        forgotResetMethod = 'email';
+        sendForgotOtp('email');
+    });
+
+    document.getElementById('forgot-phone-btn').addEventListener('click', () => {
+        forgotResetMethod = 'phone';
+        sendForgotOtp('phone');
+    });
+
+    async function sendForgotOtp(method) {
+        forgotMethodError.textContent = '';
+
+        try {
+            const response = await fetch('/api/signin/forgot-password/send-otp', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: userEmail, method }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                forgotMethodError.textContent = data.message || 'Failed to send reset code.';
+                return;
+            }
+
+            const destination = method === 'email'
+                ? document.getElementById('forgot-masked-email').textContent.replace('Send code to ', '')
+                : document.getElementById('forgot-masked-phone').textContent.replace('Send code to ', '');
+            document.getElementById('reset-destination').textContent = destination;
+
+            showStep('resetPassword');
+        } catch (err) {
+            forgotMethodError.textContent = 'Network error. Please try again.';
+        }
+    }
+
+    // ============================================
+    // Forgot Password: Step 3 — Enter OTP + new password
     // ============================================
     resetPasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -372,10 +418,10 @@
         setLoading(resetPasswordBtn, true);
 
         try {
-            const response = await fetch('/api/signin/reset-password', {
+            const response = await fetch('/api/signin/forgot-password/verify-and-reset', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, otp, newPassword }),
+                body: JSON.stringify({ email: userEmail, otp, method: forgotResetMethod, newPassword }),
             });
 
             const data = await response.json();
@@ -411,8 +457,12 @@
         showStep('credentials');
     });
 
-    document.getElementById('back-from-reset').addEventListener('click', () => {
+    document.getElementById('back-from-forgot-method').addEventListener('click', () => {
         showStep('forgotPassword');
+    });
+
+    document.getElementById('back-from-reset').addEventListener('click', () => {
+        showStep('forgotMethod');
     });
 
 })();

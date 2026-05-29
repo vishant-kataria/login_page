@@ -87,7 +87,7 @@
                         <span id="otp-masked-email" class="otp-method-detail">Send code to your email</span>
                     </div>
                 </button>
-                <button type="button" id="otp-sms-btn" class="otp-method-card">
+                <button type="button" id="otp-sms-btn" class="otp-method-card hidden">
                     <div class="otp-method-icon">
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
@@ -118,7 +118,7 @@
                     <input type="text" class="otp-digit" maxlength="1" pattern="\d" inputmode="numeric" required>
                 </div>
                 <p id="otp-verify-error" class="error-msg"></p>
-                <button type="submit" id="verifyOtpBtn" class="btn btn-primary btn-block">Verify & Sign In</button>
+                <button type="submit" id="verifyOtpBtn" class="btn btn-primary btn-block">Verify &amp; Sign In</button>
                 <div class="resend-row">
                     <span id="resend-timer" class="resend-timer">Resend code in <strong id="countdown">60</strong>s</span>
                     <button type="button" id="resend-otp-btn" class="resend-btn hidden">Resend Code</button>
@@ -127,22 +127,56 @@
             </form>
         </div>
 
-        <!-- Step 5: Forgot Password -->
+        <!-- Step 4: Forgot Password — Enter identifier -->
         <div id="step-forgot-password" class="form-step hidden">
             <h2>Reset Password</h2>
-            <p class="subtitle">Enter your email to receive a reset code</p>
+            <p class="subtitle">Enter your email or username to find your account</p>
             <form id="forgotPasswordForm">
                 <div class="form-group">
-                    <label for="reset-email">Email</label>
-                    <input type="email" id="reset-email" name="email" placeholder="you@example.com" required>
+                    <label for="reset-identifier">Email or Username</label>
+                    <input type="text" id="reset-identifier" name="identifier" placeholder="Email or username" required>
                 </div>
                 <p id="forgot-password-error" class="error-msg"></p>
-                <button type="submit" id="sendResetBtn" class="btn btn-primary btn-block">Send Reset Code</button>
+                <button type="submit" id="findAccountBtn" class="btn btn-primary btn-block">Find Account</button>
                 <button type="button" id="back-from-forgot-password" class="btn btn-secondary btn-block mt-1">Back to Sign In</button>
             </form>
         </div>
 
-        <!-- Step 6: Reset Password - Enter new password -->
+        <!-- Step 5: Forgot Password — Choose method (email or phone) -->
+        <div id="step-forgot-method" class="form-step hidden">
+            <h2>Choose Reset Method</h2>
+            <p class="subtitle">How would you like to receive your reset code?</p>
+            <div class="otp-method-options">
+                <button type="button" id="forgot-email-btn" class="otp-method-card">
+                    <div class="otp-method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="20" height="16" x="2" y="4" rx="2"/>
+                            <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                        </svg>
+                    </div>
+                    <div class="otp-method-text">
+                        <span class="otp-method-title">Email</span>
+                        <span id="forgot-masked-email" class="otp-method-detail">Send code to your email</span>
+                    </div>
+                </button>
+                <button type="button" id="forgot-phone-btn" class="otp-method-card hidden">
+                    <div class="otp-method-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+                            <path d="M12 18h.01"/>
+                        </svg>
+                    </div>
+                    <div class="otp-method-text">
+                        <span class="otp-method-title">Mobile SMS</span>
+                        <span id="forgot-masked-phone" class="otp-method-detail">Send code via SMS</span>
+                    </div>
+                </button>
+            </div>
+            <p id="forgot-method-error" class="error-msg"></p>
+            <button type="button" id="back-from-forgot-method" class="btn btn-secondary btn-block mt-1">Back</button>
+        </div>
+
+        <!-- Step 6: Reset Password — Enter OTP + new password -->
         <div id="step-reset-password" class="form-step hidden">
             <h2>Set New Password</h2>
             <p class="subtitle">Enter the code sent to <span id="reset-destination" class="highlight-email"></span></p>
