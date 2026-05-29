@@ -103,37 +103,7 @@
     color: var(--text-secondary);
 }
 
-/* === OTP Digit Inputs === */
-.otp-input-group {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-bottom: 1.2rem;
-}
-
-.otp-digit {
-    width: 46px;
-    height: 54px;
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: 700;
-    font-family: inherit;
-    border: 1px solid var(--input-border);
-    border-radius: 10px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-    background: var(--input-bg);
-    color: var(--text-primary);
-}
-
-.otp-digit:focus {
-    border-color: var(--input-focus);
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
-}
-
-.otp-digit.filled {
-    border-color: rgba(255, 255, 255, 0.3);
-}
+/* OTP digit styles are in the shared style.css */
 
 /* === Resend OTP Row === */
 .resend-row {

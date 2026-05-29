@@ -515,19 +515,19 @@ body {
     white-space: nowrap;
 }
 
-/* Digit boxes inside signup cards — reuses .otp-digit from signin.css */
-.otp-digit-group {
+/* === OTP Digit Inputs (shared across signin + signup) === */
+.otp-input-group {
     display: flex;
-    gap: 0.45rem;
+    gap: 0.5rem;
     justify-content: center;
-    margin-bottom: 0.75rem;
+    margin-bottom: 1.2rem;
 }
 
-.otp-digit-group .otp-digit {
-    width: 44px;
-    height: 52px;
+.otp-digit {
+    width: 46px;
+    height: 54px;
     text-align: center;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     font-weight: 700;
     font-family: inherit;
     border: 1px solid var(--input-border);
@@ -538,16 +538,16 @@ body {
     color: var(--text-primary);
 }
 
-.otp-digit-group .otp-digit:focus {
+.otp-digit:focus {
     border-color: var(--input-focus);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
-.otp-digit-group .otp-digit.filled {
+.otp-digit.filled {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.otp-digit-group .otp-digit:disabled {
+.otp-digit:disabled {
     opacity: 0.45;
     cursor: not-allowed;
 }
@@ -593,15 +593,15 @@ body {
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
 }
 
-/* Responsive tweaks for signup OTP digits */
+/* Responsive tweaks for OTP digits */
 @media (max-width: 440px) {
-    .otp-digit-group .otp-digit {
+    .otp-digit {
         width: 38px;
         height: 46px;
         font-size: 1.1rem;
     }
 
-    .otp-digit-group {
+    .otp-input-group {
         gap: 0.3rem;
     }
 }
