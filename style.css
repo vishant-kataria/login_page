@@ -447,19 +447,87 @@ body {
     justify-content: center;
 }
 
-/* === Shared OTP Input Styling === */
-.otp-input-group {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-bottom: 1.5rem;
+/* === Signup OTP Verification Cards === */
+.otp-verify-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 14px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.4s ease, background 0.4s ease, box-shadow 0.4s ease;
 }
 
-.otp-digit {
-    width: 46px;
-    height: 54px;
+.otp-verify-card:hover:not(.verified) {
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.otp-verify-card.verified {
+    border-color: rgba(52, 199, 89, 0.5);
+    background: rgba(52, 199, 89, 0.06);
+    box-shadow: 0 0 20px rgba(52, 199, 89, 0.08);
+}
+
+.otp-verify-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+.otp-verify-card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    flex-shrink: 0;
+    transition: background 0.3s ease;
+}
+
+.otp-verify-card.verified .otp-verify-card-icon {
+    background: rgba(52, 199, 89, 0.15);
+    color: #34c759;
+}
+
+.otp-verify-card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.otp-verify-card-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.otp-verify-card-dest {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Digit boxes inside signup cards — reuses .otp-digit from signin.css */
+.otp-digit-group {
+    display: flex;
+    gap: 0.45rem;
+    justify-content: center;
+    margin-bottom: 0.75rem;
+}
+
+.otp-digit-group .otp-digit {
+    width: 44px;
+    height: 52px;
     text-align: center;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: 700;
     font-family: inherit;
     border: 1px solid var(--input-border);
@@ -470,18 +538,54 @@ body {
     color: var(--text-primary);
 }
 
-.otp-digit:focus {
+.otp-digit-group .otp-digit:focus {
     border-color: var(--input-focus);
     box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
 }
 
-.otp-digit.filled {
+.otp-digit-group .otp-digit.filled {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-.otp-digit:disabled {
+.otp-digit-group .otp-digit:disabled {
     opacity: 0.45;
     cursor: not-allowed;
+}
+
+.verified-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-left: auto;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #34c759;
+    background: rgba(52, 199, 89, 0.12);
+    border: 1px solid rgba(52, 199, 89, 0.3);
+    border-radius: 50px;
+    padding: 0.25rem 0.6rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    animation: badgePop 0.3s ease-out;
+}
+
+@keyframes badgePop {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Verify OTP button inside cards */
+.btn-verify-otp {
+    margin-top: 0.25rem;
+    font-size: 0.88rem;
+    padding: 0.7rem 1.2rem;
+}
+
+.btn-verify-otp.btn-verified {
+    background: rgba(52, 199, 89, 0.15) !important;
+    color: #34c759 !important;
+    border: 1px solid rgba(52, 199, 89, 0.3);
 }
 
 .btn-primary.ready {
@@ -489,16 +593,16 @@ body {
     box-shadow: 0 4px 20px rgba(255, 255, 255, 0.15);
 }
 
-/* Responsive tweaks for OTP digits */
+/* Responsive tweaks for signup OTP digits */
 @media (max-width: 440px) {
-    .otp-digit {
-        width: 40px;
-        height: 48px;
-        font-size: 1.2rem;
+    .otp-digit-group .otp-digit {
+        width: 38px;
+        height: 46px;
+        font-size: 1.1rem;
     }
 
-    .otp-input-group {
-        gap: 0.35rem;
+    .otp-digit-group {
+        gap: 0.3rem;
     }
 }
 

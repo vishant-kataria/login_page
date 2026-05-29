@@ -146,20 +146,10 @@ app.post('/api/signup', async (req, res) => {
     );
 
     // Send email OTP
-    try {
-      await sendEmailOtp(email, emailOtp, 'Your Sign Up Email Verification Code', 'Verify Your Email');
-    } catch (emailErr) {
-      console.error('Signup Email Error:', emailErr);
-      return res.status(500).json({ message: 'Failed to send verification email. Please check your email address.' });
-    }
+    await sendEmailOtp(email, emailOtp, 'Your Sign Up Email Verification Code', 'Verify Your Email');
 
     // Send phone OTP via Twilio
-    try {
-      await sendSmsOtp(formattedPhone, phoneOtp, 'Your verification code');
-    } catch (smsErr) {
-      console.error('Signup SMS Error:', smsErr.message);
-      return res.status(500).json({ message: 'Failed to send SMS. Please verify your phone number (ensure country code is included).' });
-    }
+    await sendSmsOtp(formattedPhone, phoneOtp, 'Your verification code');
 
     console.log('Signup OTPs sent — Email:', email, '| Phone:', phoneNumber);
     res.status(200).json({ message: 'OTPs sent successfully. Please verify both your email and phone.' });
@@ -391,12 +381,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
         'UPDATE users SET signin_otp = $1, signin_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
       );
-      try {
-        await sendEmailOtp(email, otp, 'Your Sign In Verification Code', 'Sign In Verification');
-      } catch (emailErr) {
-        console.error('Sign-in Email Error:', emailErr);
-        return res.status(500).json({ message: 'Failed to send verification email.' });
-      }
+      await sendEmailOtp(email, otp, 'Your Sign In Verification Code', 'Sign In Verification');
       console.log('Sign-in email OTP sent to:', email);
       res.status(200).json({ message: 'OTP sent to your email.' });
     } else if (method === 'phone') {
@@ -407,12 +392,7 @@ app.post('/api/signin/send-otp', async (req, res) => {
         'UPDATE users SET signin_phone_otp = $1, signin_phone_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
       );
-      try {
-        await sendSmsOtp(user.phone_number, otp, 'Your sign-in verification code');
-      } catch (smsErr) {
-        console.error('Sign-in SMS Error:', smsErr.message);
-        return res.status(500).json({ message: 'Failed to send SMS code. Please verify your phone number.' });
-      }
+      await sendSmsOtp(user.phone_number, otp, 'Your sign-in verification code');
       console.log('Sign-in phone OTP sent to:', user.phone_number);
       res.status(200).json({ message: 'OTP sent to your phone.' });
     } else {
@@ -555,12 +535,7 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
         'UPDATE users SET reset_otp = $1, reset_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
       );
-      try {
-        await sendEmailOtp(email, otp, 'Your Password Reset Code', 'Password Reset');
-      } catch (emailErr) {
-        console.error('Forgot Password Email Error:', emailErr);
-        return res.status(500).json({ message: 'Failed to send reset email.' });
-      }
+      await sendEmailOtp(email, otp, 'Your Password Reset Code', 'Password Reset');
       console.log('Password reset email OTP sent to:', email);
       res.status(200).json({ message: 'Reset code sent to your email.' });
     } else if (method === 'phone') {
@@ -571,12 +546,7 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
         'UPDATE users SET reset_phone_otp = $1, reset_phone_otp_expires_at = $2 WHERE email = $3',
         [otp, expiresAt, email]
       );
-      try {
-        await sendSmsOtp(user.phone_number, otp, 'Your password reset code');
-      } catch (smsErr) {
-        console.error('Forgot Password SMS Error:', smsErr.message);
-        return res.status(500).json({ message: 'Failed to send reset SMS.' });
-      }
+      await sendSmsOtp(user.phone_number, otp, 'Your password reset code');
       console.log('Password reset phone OTP sent to:', user.phone_number);
       res.status(200).json({ message: 'Reset code sent to your phone.' });
     } else {
