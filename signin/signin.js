@@ -218,6 +218,7 @@
     });
 
     async function sendSigninOtp(method) {
+        otpMethod = method;
         otpMethodError.textContent = '';
 
         try {
@@ -367,6 +368,7 @@
     });
 
     async function sendForgotOtp(method) {
+        forgotResetMethod = method;
         forgotMethodError.textContent = '';
 
         try {
