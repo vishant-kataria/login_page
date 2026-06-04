@@ -5,12 +5,14 @@ const crypto = require('crypto');
 const path = require('path');
 const sgMail = require('@sendgrid/mail');
 const { OAuth2Client } = require('google-auth-library');
-const twilio = require('twilio');
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// const twilio = require('twilio');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
 const pool = require('./db');
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 const app = express();
 app.use(cors());
@@ -22,7 +24,8 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 console.log('SendGrid API Key loaded:', process.env.SENDGRID_API_KEY ? 'YES' : 'NO');
 console.log('Database URL loaded:', process.env.DATABASE_URL ? 'YES' : 'NO');
-console.log('Twilio Account SID loaded:', process.env.TWILIO_ACCOUNT_SID ? 'YES' : 'NO');
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// console.log('Twilio Account SID loaded:', process.env.TWILIO_ACCOUNT_SID ? 'YES' : 'NO');
 
 // ============================================
 // HELPERS
@@ -36,27 +39,28 @@ function otpExpiry(minutes = 10) {
   return new Date(Date.now() + minutes * 60 * 1000);
 }
 
-function formatPhoneNumber(phone) {
-  if (!phone) return phone;
-  // Strip all non-numeric characters except +
-  let cleaned = phone.replace(/[^\d+]/g, '');
-  if (cleaned.startsWith('+')) {
-    return cleaned;
-  }
-  // If it's a 10-digit number, prepend +91 (India) as a safe fallback
-  if (cleaned.length === 10) {
-    return '+91' + cleaned;
-  }
-  // If it starts with 91 and has 12 digits, prepend +
-  if (cleaned.length === 12 && cleaned.startsWith('91')) {
-    return '+' + cleaned;
-  }
-  // If it has 11 digits and starts with 0 (e.g. 09350332515), strip 0 and prepend +91
-  if (cleaned.length === 11 && cleaned.startsWith('0')) {
-    return '+91' + cleaned.slice(1);
-  }
-  return '+' + cleaned;
-}
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// function formatPhoneNumber(phone) {
+//   if (!phone) return phone;
+//   // Strip all non-numeric characters except +
+//   let cleaned = phone.replace(/[^\d+]/g, '');
+//   if (cleaned.startsWith('+')) {
+//     return cleaned;
+//   }
+//   // If it's a 10-digit number, prepend +91 (India) as a safe fallback
+//   if (cleaned.length === 10) {
+//     return '+91' + cleaned;
+//   }
+//   // If it starts with 91 and has 12 digits, prepend +
+//   if (cleaned.length === 12 && cleaned.startsWith('91')) {
+//     return '+' + cleaned;
+//   }
+//   // If it has 11 digits and starts with 0 (e.g. 09350332515), strip 0 and prepend +91
+//   if (cleaned.length === 11 && cleaned.startsWith('0')) {
+//     return '+91' + cleaned.slice(1);
+//   }
+//   return '+' + cleaned;
+// }
 
 async function sendEmailOtp(toEmail, otp, subject, headingText) {
   await sgMail.send({
@@ -78,13 +82,14 @@ async function sendEmailOtp(toEmail, otp, subject, headingText) {
   });
 }
 
-async function sendSmsOtp(toPhone, otp, messageText) {
-  await twilioClient.messages.create({
-    body: `${messageText}: ${otp}\nThis code expires in 10 minutes.`,
-    from: process.env.TWILIO_PHONE_NUMBER,
-    to: toPhone,
-  });
-}
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// async function sendSmsOtp(toPhone, otp, messageText) {
+//   await twilioClient.messages.create({
+//     body: `${messageText}: ${otp}\nThis code expires in 10 minutes.`,
+//     from: process.env.TWILIO_PHONE_NUMBER,
+//     to: toPhone,
+//   });
+// }
 
 function maskEmail(email) {
   const [local, domain] = email.split('@');
@@ -92,23 +97,31 @@ function maskEmail(email) {
   return local[0] + '***' + local[local.length - 1] + '@' + domain;
 }
 
-function maskPhone(phone) {
-  if (!phone) return null;
-  return phone.slice(0, -4).replace(/\d/g, '*') + phone.slice(-4);
-}
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// function maskPhone(phone) {
+//   if (!phone) return null;
+//   return phone.slice(0, -4).replace(/\d/g, '*') + phone.slice(-4);
+// }
 
 // ============================================
 // POST /api/signup
-// Creates user, sends email OTP + phone OTP
+// Creates user, sends email OTP (phone OTP disabled)
 // ============================================
 app.post('/api/signup', async (req, res) => {
-  const { username, fullName, email, password, phoneNumber } = req.body;
+  // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+  // Original: const { username, fullName, email, password, phoneNumber } = req.body;
+  const { username, fullName, email, password } = req.body;
 
-  if (!username || !fullName || !email || !password || !phoneNumber) {
-    return res.status(400).json({ message: 'All fields including phone number are required.' });
+  // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+  // Original: if (!username || !fullName || !email || !password || !phoneNumber) {
+  //   return res.status(400).json({ message: 'All fields including phone number are required.' });
+  // }
+  if (!username || !fullName || !email || !password) {
+    return res.status(400).json({ message: 'All fields are required.' });
   }
 
-  const formattedPhone = formatPhoneNumber(phoneNumber);
+  // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+  // const formattedPhone = formatPhoneNumber(phoneNumber);
 
   try {
     // Check verified conflicts
@@ -122,27 +135,40 @@ app.post('/api/signup', async (req, res) => {
       return res.status(400).json({ message: 'This username is already taken.' });
     }
 
-    const existingPhone = await pool.query('SELECT id, is_verified FROM users WHERE phone_number = $1', [formattedPhone]);
-    if (existingPhone.rows.length > 0 && existingPhone.rows[0].is_verified === true) {
-      return res.status(400).json({ message: 'An account with this phone number already exists.' });
-    }
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // const existingPhone = await pool.query('SELECT id, is_verified FROM users WHERE phone_number = $1', [formattedPhone]);
+    // if (existingPhone.rows.length > 0 && existingPhone.rows[0].is_verified === true) {
+    //   return res.status(400).json({ message: 'An account with this phone number already exists.' });
+    // }
 
     const passwordHash = await bcrypt.hash(password, 10);
     const emailOtp = generateOtp();
-    const phoneOtp = generateOtp();
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // const phoneOtp = generateOtp();
     const otpExpiresAt = otpExpiry(10);
 
-    // Upsert user record
+    // Upsert user record (email-only verification)
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — original query below =====
+    // await pool.query(
+    //   `INSERT INTO users (username, full_name, email, phone_number, password_hash, otp, otp_expires_at, phone_otp, phone_otp_expires_at, is_email_verified, is_phone_verified, is_verified)
+    //    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, FALSE, FALSE, FALSE)
+    //    ON CONFLICT (email)
+    //    DO UPDATE SET
+    //      username = $1, full_name = $2, phone_number = $4, password_hash = $5,
+    //      otp = $6, otp_expires_at = $7,
+    //      phone_otp = $8, phone_otp_expires_at = $9,
+    //      is_email_verified = FALSE, is_phone_verified = FALSE, is_verified = FALSE`,
+    //   [username, fullName, email, formattedPhone, passwordHash, emailOtp, otpExpiresAt, phoneOtp, otpExpiresAt]
+    // );
     await pool.query(
-      `INSERT INTO users (username, full_name, email, phone_number, password_hash, otp, otp_expires_at, phone_otp, phone_otp_expires_at, is_email_verified, is_phone_verified, is_verified)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, FALSE, FALSE, FALSE)
+      `INSERT INTO users (username, full_name, email, password_hash, otp, otp_expires_at, is_email_verified, is_verified)
+       VALUES ($1, $2, $3, $4, $5, $6, FALSE, FALSE)
        ON CONFLICT (email)
        DO UPDATE SET
-         username = $1, full_name = $2, phone_number = $4, password_hash = $5,
-         otp = $6, otp_expires_at = $7,
-         phone_otp = $8, phone_otp_expires_at = $9,
-         is_email_verified = FALSE, is_phone_verified = FALSE, is_verified = FALSE`,
-      [username, fullName, email, formattedPhone, passwordHash, emailOtp, otpExpiresAt, phoneOtp, otpExpiresAt]
+         username = $1, full_name = $2, password_hash = $4,
+         otp = $5, otp_expires_at = $6,
+         is_email_verified = FALSE, is_verified = FALSE`,
+      [username, fullName, email, passwordHash, emailOtp, otpExpiresAt]
     );
 
     // Send email OTP
@@ -153,16 +179,17 @@ app.post('/api/signup', async (req, res) => {
       return res.status(500).json({ message: 'Failed to send verification email. Please check your email address.' });
     }
 
-    // Send phone OTP via Twilio
-    try {
-      await sendSmsOtp(formattedPhone, phoneOtp, 'Your verification code');
-    } catch (smsErr) {
-      console.error('Signup SMS Error:', smsErr.message);
-      return res.status(500).json({ message: 'Failed to send SMS. Please verify your phone number (ensure country code is included).' });
-    }
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // // Send phone OTP via Twilio
+    // try {
+    //   await sendSmsOtp(formattedPhone, phoneOtp, 'Your verification code');
+    // } catch (smsErr) {
+    //   console.error('Signup SMS Error:', smsErr.message);
+    //   return res.status(500).json({ message: 'Failed to send SMS. Please verify your phone number (ensure country code is included).' });
+    // }
 
-    console.log('Signup OTPs sent — Email:', email, '| Phone:', phoneNumber);
-    res.status(200).json({ message: 'OTPs sent successfully. Please verify both your email and phone.' });
+    console.log('Signup OTP sent — Email:', email);
+    res.status(200).json({ message: 'OTP sent successfully. Please verify your email.' });
   } catch (error) {
     console.error('Signup Error:', error);
     if (error.response) console.error('SendGrid:', JSON.stringify(error.response.body));
@@ -215,50 +242,51 @@ app.post('/api/signup/verify-email', async (req, res) => {
   }
 });
 
-// ============================================
-// POST /api/signup/verify-phone
-// Verifies the phone OTP and marks is_phone_verified
-// ============================================
-app.post('/api/signup/verify-phone', async (req, res) => {
-  const { email, otp } = req.body;
-
-  if (!email || !otp) {
-    return res.status(400).json({ message: 'Email and OTP are required.' });
-  }
-
-  try {
-    const result = await pool.query(
-      'SELECT id, phone_otp, phone_otp_expires_at, is_phone_verified FROM users WHERE email = $1',
-      [email]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(400).json({ message: 'Session expired. Please sign up again.' });
-    }
-
-    const user = result.rows[0];
-
-    if (user.is_phone_verified) {
-      return res.status(200).json({ message: 'Phone already verified.' });
-    }
-    if (new Date() > new Date(user.phone_otp_expires_at)) {
-      return res.status(400).json({ message: 'Phone OTP expired. Please start over.' });
-    }
-    if (user.phone_otp !== otp) {
-      return res.status(400).json({ message: 'Invalid phone OTP.' });
-    }
-
-    await pool.query(
-      'UPDATE users SET is_phone_verified = TRUE, phone_otp = NULL, phone_otp_expires_at = NULL WHERE email = $1',
-      [email]
-    );
-
-    res.status(200).json({ message: 'Phone verified successfully.' });
-  } catch (error) {
-    console.error('Verify Phone Error:', error);
-    res.status(500).json({ message: 'Server error during phone verification.' });
-  }
-});
+// ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+// // ============================================
+// // POST /api/signup/verify-phone
+// // Verifies the phone OTP and marks is_phone_verified
+// // ============================================
+// app.post('/api/signup/verify-phone', async (req, res) => {
+//   const { email, otp } = req.body;
+//
+//   if (!email || !otp) {
+//     return res.status(400).json({ message: 'Email and OTP are required.' });
+//   }
+//
+//   try {
+//     const result = await pool.query(
+//       'SELECT id, phone_otp, phone_otp_expires_at, is_phone_verified FROM users WHERE email = $1',
+//       [email]
+//     );
+//
+//     if (result.rows.length === 0) {
+//       return res.status(400).json({ message: 'Session expired. Please sign up again.' });
+//     }
+//
+//     const user = result.rows[0];
+//
+//     if (user.is_phone_verified) {
+//       return res.status(200).json({ message: 'Phone already verified.' });
+//     }
+//     if (new Date() > new Date(user.phone_otp_expires_at)) {
+//       return res.status(400).json({ message: 'Phone OTP expired. Please start over.' });
+//     }
+//     if (user.phone_otp !== otp) {
+//       return res.status(400).json({ message: 'Invalid phone OTP.' });
+//     }
+//
+//     await pool.query(
+//       'UPDATE users SET is_phone_verified = TRUE, phone_otp = NULL, phone_otp_expires_at = NULL WHERE email = $1',
+//       [email]
+//     );
+//
+//     res.status(200).json({ message: 'Phone verified successfully.' });
+//   } catch (error) {
+//     console.error('Verify Phone Error:', error);
+//     res.status(500).json({ message: 'Server error during phone verification.' });
+//   }
+// });
 
 // ============================================
 // POST /api/signup/complete
@@ -273,7 +301,7 @@ app.post('/api/signup/complete', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, is_email_verified, is_phone_verified FROM users WHERE email = $1',
+      'SELECT id, is_email_verified FROM users WHERE email = $1',
       [email]
     );
 
@@ -286,9 +314,10 @@ app.post('/api/signup/complete', async (req, res) => {
     if (!user.is_email_verified) {
       return res.status(400).json({ message: 'Please verify your email first.' });
     }
-    if (!user.is_phone_verified) {
-      return res.status(400).json({ message: 'Please verify your phone number first.' });
-    }
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // if (!user.is_phone_verified) {
+    //   return res.status(400).json({ message: 'Please verify your phone number first.' });
+    // }
 
     await pool.query(
       'UPDATE users SET is_verified = TRUE WHERE email = $1',
@@ -327,8 +356,8 @@ app.post('/api/signin', async (req, res) => {
     const isEmail = identifier.includes('@');
     const result = await pool.query(
       isEmail
-        ? 'SELECT id, email, password_hash, is_verified, phone_number FROM users WHERE email = $1'
-        : 'SELECT id, email, password_hash, is_verified, phone_number FROM users WHERE username = $1',
+        ? 'SELECT id, email, password_hash, is_verified FROM users WHERE email = $1'
+        : 'SELECT id, email, password_hash, is_verified FROM users WHERE username = $1',
       [identifier]
     );
 
@@ -350,7 +379,9 @@ app.post('/api/signin', async (req, res) => {
     res.status(200).json({
       message: 'Credentials verified.',
       email: user.email,
-      maskedPhone: user.phone_number ? maskPhone(user.phone_number) : null,
+      // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+      // maskedPhone: user.phone_number ? maskPhone(user.phone_number) : null,
+      maskedPhone: null,
     });
   } catch (error) {
     console.error('Signin Error:', error.message);
@@ -399,24 +430,25 @@ app.post('/api/signin/send-otp', async (req, res) => {
       }
       console.log('Sign-in email OTP sent to:', email);
       res.status(200).json({ message: 'OTP sent to your email.' });
-    } else if (channel === 'phone') {
-      if (!user.phone_number) {
-        return res.status(400).json({ message: 'No phone number associated with this account.' });
-      }
-      await pool.query(
-        'UPDATE users SET signin_phone_otp = $1, signin_phone_otp_expires_at = $2 WHERE email = $3',
-        [otp, expiresAt, email]
-      );
-      try {
-        await sendSmsOtp(user.phone_number, otp, 'Your sign-in verification code');
-      } catch (smsErr) {
-        console.error('Sign-in SMS Error:', smsErr.message);
-        return res.status(500).json({ message: 'Failed to send SMS code. Please verify your phone number.' });
-      }
-      console.log('Sign-in phone OTP sent to:', user.phone_number);
-      res.status(200).json({ message: 'OTP sent to your phone.' });
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // } else if (channel === 'phone') {
+    //   if (!user.phone_number) {
+    //     return res.status(400).json({ message: 'No phone number associated with this account.' });
+    //   }
+    //   await pool.query(
+    //     'UPDATE users SET signin_phone_otp = $1, signin_phone_otp_expires_at = $2 WHERE email = $3',
+    //     [otp, expiresAt, email]
+    //   );
+    //   try {
+    //     await sendSmsOtp(user.phone_number, otp, 'Your sign-in verification code');
+    //   } catch (smsErr) {
+    //     console.error('Sign-in SMS Error:', smsErr.message);
+    //     return res.status(500).json({ message: 'Failed to send SMS code. Please verify your phone number.' });
+    //   }
+    //   console.log('Sign-in phone OTP sent to:', user.phone_number);
+    //   res.status(200).json({ message: 'OTP sent to your phone.' });
     } else {
-      return res.status(400).json({ message: 'Invalid channel. Use "email" or "phone".' });
+      return res.status(400).json({ message: 'Invalid channel. Use "email".' });
     }
   } catch (error) {
     console.error('Send Sign-In OTP Error:', error.message);
@@ -440,7 +472,9 @@ app.post('/api/signin/verify-otp', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, username, email, signin_otp, signin_otp_expires_at, signin_phone_otp, signin_phone_otp_expires_at FROM users WHERE email = $1',
+      // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+      // 'SELECT id, username, email, signin_otp, signin_otp_expires_at, signin_phone_otp, signin_phone_otp_expires_at FROM users WHERE email = $1',
+      'SELECT id, username, email, signin_otp, signin_otp_expires_at FROM users WHERE email = $1',
       [email]
     );
 
@@ -461,17 +495,18 @@ app.post('/api/signin/verify-otp', async (req, res) => {
         'UPDATE users SET signin_otp = NULL, signin_otp_expires_at = NULL WHERE email = $1',
         [email]
       );
-    } else if (channel === 'phone') {
-      if (new Date() > new Date(user.signin_phone_otp_expires_at)) {
-        return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
-      }
-      if (user.signin_phone_otp !== otp) {
-        return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
-      }
-      await pool.query(
-        'UPDATE users SET signin_phone_otp = NULL, signin_phone_otp_expires_at = NULL WHERE email = $1',
-        [email]
-      );
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // } else if (channel === 'phone') {
+    //   if (new Date() > new Date(user.signin_phone_otp_expires_at)) {
+    //     return res.status(400).json({ message: 'OTP has expired. Please request a new one.' });
+    //   }
+    //   if (user.signin_phone_otp !== otp) {
+    //     return res.status(400).json({ message: 'Invalid OTP. Please try again.' });
+    //   }
+    //   await pool.query(
+    //     'UPDATE users SET signin_phone_otp = NULL, signin_phone_otp_expires_at = NULL WHERE email = $1',
+    //     [email]
+    //   );
     } else {
       return res.status(400).json({ message: 'Invalid channel.' });
     }
@@ -501,8 +536,8 @@ app.post('/api/signin/forgot-password/lookup', async (req, res) => {
     const isEmail = identifier.includes('@');
     const result = await pool.query(
       isEmail
-        ? 'SELECT id, email, phone_number FROM users WHERE email = $1 AND is_verified = TRUE'
-        : 'SELECT id, email, phone_number FROM users WHERE username = $1 AND is_verified = TRUE',
+        ? 'SELECT id, email FROM users WHERE email = $1 AND is_verified = TRUE'
+        : 'SELECT id, email FROM users WHERE username = $1 AND is_verified = TRUE',
       [identifier]
     );
 
@@ -514,7 +549,9 @@ app.post('/api/signin/forgot-password/lookup', async (req, res) => {
     res.status(200).json({
       email: user.email,
       maskedEmail: maskEmail(user.email),
-      maskedPhone: user.phone_number ? maskPhone(user.phone_number) : null,
+      // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+      // maskedPhone: user.phone_number ? maskPhone(user.phone_number) : null,
+      maskedPhone: null,
     });
   } catch (error) {
     console.error('Forgot Password Lookup Error:', error.message);
@@ -563,24 +600,25 @@ app.post('/api/signin/forgot-password/send-otp', async (req, res) => {
       }
       console.log('Password reset email OTP sent to:', email);
       res.status(200).json({ message: 'Reset code sent to your email.' });
-    } else if (channel === 'phone') {
-      if (!user.phone_number) {
-        return res.status(400).json({ message: 'No phone number associated with this account.' });
-      }
-      await pool.query(
-        'UPDATE users SET reset_phone_otp = $1, reset_phone_otp_expires_at = $2 WHERE email = $3',
-        [otp, expiresAt, email]
-      );
-      try {
-        await sendSmsOtp(user.phone_number, otp, 'Your password reset code');
-      } catch (smsErr) {
-        console.error('Forgot Password SMS Error:', smsErr.message);
-        return res.status(500).json({ message: 'Failed to send reset SMS.' });
-      }
-      console.log('Password reset phone OTP sent to:', user.phone_number);
-      res.status(200).json({ message: 'Reset code sent to your phone.' });
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // } else if (channel === 'phone') {
+    //   if (!user.phone_number) {
+    //     return res.status(400).json({ message: 'No phone number associated with this account.' });
+    //   }
+    //   await pool.query(
+    //     'UPDATE users SET reset_phone_otp = $1, reset_phone_otp_expires_at = $2 WHERE email = $3',
+    //     [otp, expiresAt, email]
+    //   );
+    //   try {
+    //     await sendSmsOtp(user.phone_number, otp, 'Your password reset code');
+    //   } catch (smsErr) {
+    //     console.error('Forgot Password SMS Error:', smsErr.message);
+    //     return res.status(500).json({ message: 'Failed to send reset SMS.' });
+    //   }
+    //   console.log('Password reset phone OTP sent to:', user.phone_number);
+    //   res.status(200).json({ message: 'Reset code sent to your phone.' });
     } else {
-      return res.status(400).json({ message: 'Invalid method. Use "email" or "phone".' });
+      return res.status(400).json({ message: 'Invalid method. Use "email".' });
     }
   } catch (error) {
     console.error('Forgot Password Send OTP Error:', error.message);
@@ -606,7 +644,9 @@ app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
 
   try {
     const result = await pool.query(
-      'SELECT id, reset_otp, reset_otp_expires_at, reset_phone_otp, reset_phone_otp_expires_at FROM users WHERE email = $1',
+      // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+      // 'SELECT id, reset_otp, reset_otp_expires_at, reset_phone_otp, reset_phone_otp_expires_at FROM users WHERE email = $1',
+      'SELECT id, reset_otp, reset_otp_expires_at FROM users WHERE email = $1',
       [email]
     );
 
@@ -623,13 +663,14 @@ app.post('/api/signin/forgot-password/verify-and-reset', async (req, res) => {
       if (user.reset_otp !== otp) {
         return res.status(400).json({ message: 'Invalid reset code.' });
       }
-    } else if (channel === 'phone') {
-      if (new Date() > new Date(user.reset_phone_otp_expires_at)) {
-        return res.status(400).json({ message: 'Reset code has expired. Please request a new one.' });
-      }
-      if (user.reset_phone_otp !== otp) {
-        return res.status(400).json({ message: 'Invalid reset code.' });
-      }
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // } else if (channel === 'phone') {
+    //   if (new Date() > new Date(user.reset_phone_otp_expires_at)) {
+    //     return res.status(400).json({ message: 'Reset code has expired. Please request a new one.' });
+    //   }
+    //   if (user.reset_phone_otp !== otp) {
+    //     return res.status(400).json({ message: 'Invalid reset code.' });
+    //   }
     } else {
       return res.status(400).json({ message: 'Invalid channel.' });
     }

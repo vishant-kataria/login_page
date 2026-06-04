@@ -7,6 +7,11 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+// Prevent idle clients from crashing the process when network connection is lost or timed out
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle database client:', err.message || err);
+});
+
 const initDb = async () => {
   try {
     // Base table (signup columns)

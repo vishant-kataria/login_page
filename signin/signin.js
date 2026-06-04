@@ -188,13 +188,14 @@
             userEmail = data.email;
             document.getElementById('otp-masked-email').textContent = 'Send code to ' + maskEmail(data.email);
 
-            const smsBtn = document.getElementById('otp-sms-btn');
-            if (data.maskedPhone) {
-                document.getElementById('otp-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
-                smsBtn.classList.remove('hidden');
-            } else {
-                smsBtn.classList.add('hidden');
-            }
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // const smsBtn = document.getElementById('otp-sms-btn');
+            // if (data.maskedPhone) {
+            //     document.getElementById('otp-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
+            //     smsBtn.classList.remove('hidden');
+            // } else {
+            //     smsBtn.classList.add('hidden');
+            // }
 
             showStep('otpMethod');
             setLoading(signinBtn, false, 'Sign In');
@@ -212,10 +213,11 @@
         sendSigninOtp('email');
     });
 
-    document.getElementById('otp-sms-btn').addEventListener('click', () => {
-        otpMethod = 'phone';
-        sendSigninOtp('phone');
-    });
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // document.getElementById('otp-sms-btn').addEventListener('click', () => {
+    //     otpMethod = 'phone';
+    //     sendSigninOtp('phone');
+    // });
 
     async function sendSigninOtp(method) {
         otpMethod = method;
@@ -338,13 +340,14 @@
 
             // Show method selection
             document.getElementById('forgot-masked-email').textContent = 'Send code to ' + data.maskedEmail;
-            const forgotPhoneBtn = document.getElementById('forgot-phone-btn');
-            if (data.maskedPhone) {
-                document.getElementById('forgot-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
-                forgotPhoneBtn.classList.remove('hidden');
-            } else {
-                forgotPhoneBtn.classList.add('hidden');
-            }
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // const forgotPhoneBtn = document.getElementById('forgot-phone-btn');
+            // if (data.maskedPhone) {
+            //     document.getElementById('forgot-masked-phone').textContent = 'Send code to ' + data.maskedPhone;
+            //     forgotPhoneBtn.classList.remove('hidden');
+            // } else {
+            //     forgotPhoneBtn.classList.add('hidden');
+            // }
 
             showStep('forgotMethod');
             setLoading(findAccountBtn, false, 'Find Account');
@@ -362,10 +365,11 @@
         sendForgotOtp('email');
     });
 
-    document.getElementById('forgot-phone-btn').addEventListener('click', () => {
-        forgotResetMethod = 'phone';
-        sendForgotOtp('phone');
-    });
+    // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+    // document.getElementById('forgot-phone-btn').addEventListener('click', () => {
+    //     forgotResetMethod = 'phone';
+    //     sendForgotOtp('phone');
+    // });
 
     async function sendForgotOtp(method) {
         forgotResetMethod = method;

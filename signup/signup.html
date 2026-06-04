@@ -10,7 +10,14 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         /* Signup OTP digit boxes — inline to avoid caching issues */
-        #email-otp-digits,
+        #email-otp-digits {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            gap: 0.5rem;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+        }
+        /* ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
         #phone-otp-digits {
             display: flex !important;
             flex-wrap: nowrap !important;
@@ -18,8 +25,28 @@
             justify-content: center;
             margin-bottom: 1.2rem;
         }
+        */
 
-        #email-otp-digits .otp-digit,
+        #email-otp-digits .otp-digit {
+            width: 46px !important;
+            height: 54px !important;
+            min-width: 46px;
+            max-width: 46px;
+            text-align: center;
+            font-size: 1.4rem;
+            font-weight: 700;
+            font-family: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            background: #1c1c1e;
+            color: #ffffff;
+            padding: 0;
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
+        /* ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
         #phone-otp-digits .otp-digit {
             width: 46px !important;
             height: 54px !important;
@@ -39,23 +66,38 @@
             flex-shrink: 0;
             flex-grow: 0;
         }
+        */
 
-        #email-otp-digits .otp-digit:focus,
+        #email-otp-digits .otp-digit:focus {
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
+        }
+        /* ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
         #phone-otp-digits .otp-digit:focus {
             border-color: rgba(255, 255, 255, 0.25);
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.05);
         }
+        */
 
-        #email-otp-digits .otp-digit.filled,
+        #email-otp-digits .otp-digit.filled {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        /* ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
         #phone-otp-digits .otp-digit.filled {
             border-color: rgba(255, 255, 255, 0.3);
         }
+        */
 
-        #email-otp-digits .otp-digit:disabled,
+        #email-otp-digits .otp-digit:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+        /* ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
         #phone-otp-digits .otp-digit:disabled {
             opacity: 0.45;
             cursor: not-allowed;
         }
+        */
     </style>
 </head>
 <body>
@@ -91,10 +133,12 @@
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" placeholder="you@example.com" required>
                 </div>
+                <!-- ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
                 <div class="form-group">
                     <label for="phoneNumber">Phone Number</label>
                     <input type="tel" id="phoneNumber" name="phoneNumber" placeholder="+91 9876543210" required>
                 </div>
+                -->
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Min 6 characters" minlength="6" required>
@@ -132,7 +176,7 @@
         <!-- Step 2: Dual OTP Verification -->
         <div id="step-2" class="form-step hidden">
             <h2>Verify Your Account</h2>
-            <p class="subtitle">Enter the codes sent to your email and phone number.</p>
+            <p class="subtitle">Enter the code sent to your email.</p>
 
             <!-- Email OTP Card -->
             <div class="otp-verify-card" id="email-otp-card">
@@ -163,7 +207,7 @@
                 <button type="button" id="verifyEmailBtn" class="btn btn-primary btn-block btn-verify-otp">Verify Email</button>
             </div>
 
-            <!-- Phone OTP Card -->
+            <!-- ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
             <div class="otp-verify-card" id="phone-otp-card">
                 <div class="otp-verify-card-header">
                     <div class="otp-verify-card-icon">
@@ -191,6 +235,7 @@
                 <p id="phone-otp-error" class="error-msg"></p>
                 <button type="button" id="verifyPhoneBtn" class="btn btn-primary btn-block btn-verify-otp">Verify Phone</button>
             </div>
+            -->
 
             <p id="step2-error" class="error-msg"></p>
             <button type="button" id="createAccountBtn" class="btn btn-primary btn-block" disabled>Create Account</button>
@@ -206,14 +251,17 @@
         const step2Error = document.getElementById('step2-error');
         const signupBtn = document.getElementById('signupBtn');
         const verifyEmailBtn = document.getElementById('verifyEmailBtn');
-        const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
+        // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+        // const verifyPhoneBtn = document.getElementById('verifyPhoneBtn');
         const createAccountBtn = document.getElementById('createAccountBtn');
         const emailOtpError = document.getElementById('email-otp-error');
-        const phoneOtpError = document.getElementById('phone-otp-error');
+        // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+        // const phoneOtpError = document.getElementById('phone-otp-error');
 
         let userEmail = '';
         let isEmailVerified = false;
-        let isPhoneVerified = false;
+        // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+        // let isPhoneVerified = false;
 
         // --- OTP Digit Input Handling (reusable for both groups) ---
         function setupOtpDigitGroup(containerId) {
@@ -270,12 +318,15 @@
             digits.forEach(d => { d.disabled = true; });
         }
 
-        // Initialize both OTP digit groups
+        // Initialize email OTP digit group
         setupOtpDigitGroup('email-otp-digits');
-        setupOtpDigitGroup('phone-otp-digits');
+        // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+        // setupOtpDigitGroup('phone-otp-digits');
 
         function checkBothVerified() {
-            if (isEmailVerified && isPhoneVerified) {
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // Original: if (isEmailVerified && isPhoneVerified) {
+            if (isEmailVerified) {
                 createAccountBtn.disabled = false;
                 createAccountBtn.classList.add('ready');
             }
@@ -289,7 +340,8 @@
             const username = document.getElementById('username').value.trim();
             const fullName = document.getElementById('fullName').value.trim();
             const email = document.getElementById('email').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
 
@@ -309,7 +361,7 @@
                 const response = await fetch('/api/signup', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, fullName, email, password, phoneNumber }),
+                    body: JSON.stringify({ username, fullName, email, password }),
                 });
                 const data = await response.json();
 
@@ -322,7 +374,8 @@
 
                 userEmail = email;
                 document.getElementById('display-email').textContent = email;
-                document.getElementById('display-phone').textContent = phoneNumber;
+                // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+                // document.getElementById('display-phone').textContent = phoneNumber;
 
                 step1.classList.remove('active');
                 step1.classList.add('hidden');
@@ -381,48 +434,49 @@
             }
         });
 
-        // Verify Phone OTP
-        verifyPhoneBtn.addEventListener('click', async () => {
-            phoneOtpError.textContent = '';
-            const otp = getDigitGroupValue('phone-otp-digits');
-
-            if (!otp || otp.length !== 6) {
-                phoneOtpError.textContent = 'Please enter the 6-digit phone code.';
-                return;
-            }
-
-            verifyPhoneBtn.disabled = true;
-            verifyPhoneBtn.textContent = 'Verifying...';
-
-            try {
-                const response = await fetch('/api/signup/verify-phone', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email: userEmail, otp }),
-                });
-                const data = await response.json();
-
-                if (!response.ok) {
-                    phoneOtpError.textContent = data.message;
-                    verifyPhoneBtn.disabled = false;
-                    verifyPhoneBtn.textContent = 'Verify Phone';
-                    return;
-                }
-
-                isPhoneVerified = true;
-                document.getElementById('phone-otp-card').classList.add('verified');
-                document.getElementById('phone-verified-badge').classList.remove('hidden');
-                disableDigitGroup('phone-otp-digits');
-                verifyPhoneBtn.disabled = true;
-                verifyPhoneBtn.textContent = '✓ Verified';
-                verifyPhoneBtn.classList.add('btn-verified');
-                checkBothVerified();
-            } catch (err) {
-                phoneOtpError.textContent = 'Network error. Please try again.';
-                verifyPhoneBtn.disabled = false;
-                verifyPhoneBtn.textContent = 'Verify Phone';
-            }
-        });
+        // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+        // // Verify Phone OTP
+        // verifyPhoneBtn.addEventListener('click', async () => {
+        //     phoneOtpError.textContent = '';
+        //     const otp = getDigitGroupValue('phone-otp-digits');
+        //
+        //     if (!otp || otp.length !== 6) {
+        //         phoneOtpError.textContent = 'Please enter the 6-digit phone code.';
+        //         return;
+        //     }
+        //
+        //     verifyPhoneBtn.disabled = true;
+        //     verifyPhoneBtn.textContent = 'Verifying...';
+        //
+        //     try {
+        //         const response = await fetch('/api/signup/verify-phone', {
+        //             method: 'POST',
+        //             headers: { 'Content-Type': 'application/json' },
+        //             body: JSON.stringify({ email: userEmail, otp }),
+        //         });
+        //         const data = await response.json();
+        //
+        //         if (!response.ok) {
+        //             phoneOtpError.textContent = data.message;
+        //             verifyPhoneBtn.disabled = false;
+        //             verifyPhoneBtn.textContent = 'Verify Phone';
+        //             return;
+        //         }
+        //
+        //         isPhoneVerified = true;
+        //         document.getElementById('phone-otp-card').classList.add('verified');
+        //         document.getElementById('phone-verified-badge').classList.remove('hidden');
+        //         disableDigitGroup('phone-otp-digits');
+        //         verifyPhoneBtn.disabled = true;
+        //         verifyPhoneBtn.textContent = '✓ Verified';
+        //         verifyPhoneBtn.classList.add('btn-verified');
+        //         checkBothVerified();
+        //     } catch (err) {
+        //         phoneOtpError.textContent = 'Network error. Please try again.';
+        //         verifyPhoneBtn.disabled = false;
+        //         verifyPhoneBtn.textContent = 'Verify Phone';
+        //     }
+        // });
 
         // Create Account (both verified)
         createAccountBtn.addEventListener('click', async () => {
@@ -467,23 +521,27 @@
             signupBtn.disabled = false;
             signupBtn.textContent = 'Continue';
             isEmailVerified = false;
-            isPhoneVerified = false;
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // isPhoneVerified = false;
             createAccountBtn.disabled = true;
             createAccountBtn.classList.remove('ready');
             clearDigitGroup('email-otp-digits');
-            clearDigitGroup('phone-otp-digits');
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // clearDigitGroup('phone-otp-digits');
+            // document.getElementById('phone-verified-badge').classList.add('hidden');
+            // document.getElementById('phone-otp-card').classList.remove('verified');
             document.getElementById('email-verified-badge').classList.add('hidden');
-            document.getElementById('phone-verified-badge').classList.add('hidden');
             document.getElementById('email-otp-card').classList.remove('verified');
-            document.getElementById('phone-otp-card').classList.remove('verified');
             verifyEmailBtn.disabled = false;
             verifyEmailBtn.textContent = 'Verify Email';
             verifyEmailBtn.classList.remove('btn-verified');
-            verifyPhoneBtn.disabled = false;
-            verifyPhoneBtn.textContent = 'Verify Phone';
-            verifyPhoneBtn.classList.remove('btn-verified');
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // verifyPhoneBtn.disabled = false;
+            // verifyPhoneBtn.textContent = 'Verify Phone';
+            // verifyPhoneBtn.classList.remove('btn-verified');
             emailOtpError.textContent = '';
-            phoneOtpError.textContent = '';
+            // ===== PHONE VERIFICATION DISABLED (Twilio is paid) — uncomment when ready =====
+            // phoneOtpError.textContent = '';
             step2Error.textContent = '';
         });
     </script>
